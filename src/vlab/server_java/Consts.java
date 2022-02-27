@@ -24,12 +24,8 @@ public class Consts {
     public static final String linearFunction = "линейная";
     public static final String tgFunction = "гиперболический тангенс";
     public static final String[] activationFunctions = {sigmoidFunction, linearFunction, tgFunction};
-    public static final char[] charsForEquations = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
     public static final int roundEdgeWeightSign = 1;
     public static final int roundNodesValueSign = 2;
-    public static final int epochs = 500;
-    public static final double E = 0.01;
-    public static final double A = 0.3;
     public static final double classBorderline = 0.5;
 
     public static double doubleToTwoDecimal(double number) {

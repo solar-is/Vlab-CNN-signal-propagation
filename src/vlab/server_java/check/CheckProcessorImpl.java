@@ -189,16 +189,6 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
         return mse;
     }
 
-    private static JSONArray getJSONArrayByKey(JSONArray arr, String key) {
-        JSONArray result = new JSONArray();
-
-        for (int i = 0; i < arr.length(); i++) {
-            result.put(i, arr.getJSONObject(i).getJSONArray(key));
-        }
-
-        return result;
-    }
-
     private static JSONArray sortJsonArrays(String jsonArrStr, String KEY_NAME) {
         JSONArray jsonArr = new JSONArray(jsonArrStr);
         JSONArray sortedJsonArray = new JSONArray();

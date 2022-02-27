@@ -1,127 +1,3 @@
-const test_graph = {
-    nodes: [0, 1, 2, 3, 4, 5, 6, 7, 8],
-    nodesLevel: [1, 2, 2, 2, 3, 3, 3, 3, 4],
-    edges: [
-        [0, 1, 1, 1, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 1, 1, 1, 0],
-        [0, 0, 0, 0, 1, 1, 1, 1, 0],
-        [0, 0, 0, 0, 1, 1, 1, 1, 0],
-        [0, 0, 0, 0, 1, 1, 1, 1, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    ],
-};
-
-const test_graph_2 = {
-    nodes: [0, 1, 2, 3, 4],
-    nodesLevel: [1, 1, 2, 2, 3],
-    nodesValue: [1, 0, null, 3, null],
-    edges: [
-        [0, 0, 1, 1, 0],
-        [0, 0, 1, 1, 0],
-        [0, 0, 0, 0, 1],
-        [0, 0, 0, 0, 1],
-        [0, 0, 0, 0, 0],
-    ],
-    edgeWeight: [
-        [0, 0, -0.12, 0.78, 0],
-        [0, 0, 0.45, 0.13, 0],
-        [0, 0, 0, 0, 1.5],
-        [0, 0, 0, 0, -2.3],
-        [0, 0, 0, 0, 0],
-    ],
-};
-
-function dataToSigma(state) {
-    let edges = state.edges;
-    let nodes = state.nodes;
-    let nodesLevel = state.nodesLevel;
-    let edgeWeight = state.edgeWeight;
-    let nodesValue = state.nodesValue;
-    let neuronsTableData = state.neuronsTableData;
-    let currentNodeSection = state.currentNodeSection;
-    let currentSelectedNodeId = state.currentSelectedNodeId;
-    let inputNeuronsAmount = state.inputNeuronsAmount;
-    let outputNeuronsAmount = state.outputNeuronsAmount;
-    let amountOfNodesInHiddenLayer = state.amountOfNodesInHiddenLayer;
-    let resultEdges = [];
-    let resultNodes = [];
-    let nodesLevelAmount = [];
-    let maxLevel = 1;
-    let xDistanceCoefficient = 2;
-    let maxNeuronsInLayer = Math.max(inputNeuronsAmount, outputNeuronsAmount, amountOfNodesInHiddenLayer);
-    let yLevelRandomDisplacement = state.yLevelRandomDisplacement;
-
-    for (let i = 0; i < nodesLevel.length; i++) {
-        nodesLevelAmount[nodesLevel[i]] = 1 + (nodesLevelAmount[nodesLevel[i]] || 0);
-    }
-
-    nodesLevelAmount.map(el => {
-        if (maxLevel < el)
-            maxLevel = el;
-    });
-
-    for (let i = 0; i < nodes.length; i++) {
-        let nodeValue = nodesValue[i] !== null ? `(${nodesValue[i]})` : "";
-        let nodeColor = "#000";
-        let nodeId = "n" + i;
-        let yLevel = 0;
-
-        yLevel = maxNeuronsInLayer / (nodesLevel[i]) + i + 1 - nodesLevel[i];
-        yLevel += yLevelRandomDisplacement[i];
-
-        for (let j = 0; j > neuronsTableData.length; j++) {
-            if (neuronsTableData[j].nodeId === nodeId) {
-                nodeColor = "#28a745";
-            }
-        }
-
-        if (typeof nodesValue[i] === "number") {
-            nodeColor = "#28a745";
-        }
-
-        if (currentSelectedNodeId === nodeId) {
-            nodeColor = "#DE4E5A";
-        }
-
-        currentNodeSection.map(currentNodeSectionId => {
-            if (currentNodeSectionId === nodeId) {
-                nodeColor = "#DEBF59";
-            }
-        });
-
-        resultNodes[i] = {
-            id: nodeId,
-            label: `${i.toString()} ${nodeValue}`,
-            x: nodesLevel[i] * xDistanceCoefficient,
-            y: yLevel,
-            size: 4,
-            color: nodeColor,
-        };
-    }
-
-    for (let i = 0; i < edges.length; i++) {
-        for (let j = 0; j < edges.length; j++) {
-            if (edges[i][j] === 1) {
-                resultEdges.push({
-                    id: "e" + i + j,
-                    source: "n" + i,
-                    target: "n" + j,
-                    label: edgeWeight[i][j].toString(),
-                    color: "#000"
-                });
-            }
-        }
-    }
-
-    return {
-        nodes: resultNodes,
-        edges: resultEdges,
-    }
-}
-
 function getHTML(templateData) {
     let tableData = "";
 
@@ -306,13 +182,6 @@ function subscriber() {
     }
 }
 
-function App() {
-    return {
-        state: initState(),
-        subscriber: subscriber(),
-    }
-}
-
 function bindActionListeners(appInstance) {
     document.getElementById("error").addEventListener('change', () => {
         const state = appInstance.state.updateState((state) => {
@@ -455,8 +324,6 @@ function bindActionListeners(appInstance) {
                 nodesValueCopy[currentSelectedNodeIdNumber] = null;
                 let prevNeuronInputSignalValue = state.currentNeuronInputSignalValue;
                 let prevNeuronOutputSignalValue = state.currentNeuronOutputSignalValue;
-                let prevNodeSection = state.currentNodeSection;
-
                 return {
                     ...state,
                     neuronsTableData,
@@ -482,82 +349,12 @@ function bindActionListeners(appInstance) {
     });
 }
 
-function renderDag(state, appInstance) {
-    let s = new sigma({
-        renderers: [{
-            container: document.getElementById('graphContainer'),
-            type: "canvas",
-        }],
-        settings: {
-            defaultEdgeLabelSize: 15,
-        },
-    });
-
-    let testData = dataToSigma(state);
-
-    testData.nodes.map(node => {
-        s.graph.addNode(node);
-    });
-
-    testData.edges.map(edge => {
-        s.graph.addEdge(edge);
-    });
-
-    s.bind('clickNode', (res) => {
-        const state = appInstance.state.updateState((state) => {
-
-            if (state.isSelectingNodesModeActivated) {
-                let currentNodeSectionCopy = [...state.currentNodeSection];
-                let isNodeInList = false;
-
-                currentNodeSectionCopy.map((nodeId, index) => {
-                    if (nodeId === res.data.node.id) {
-                        currentNodeSectionCopy.splice(index, 1);
-                        isNodeInList = true;
-                        return;
-                    }
-                });
-
-                if (!isNodeInList && res.data.node.id !== state.currentSelectedNodeId) {
-                    currentNodeSectionCopy.push(res.data.node.id);
-                } else if (res.data.node.id === state.currentSelectedNodeId) {
-                    return {
-                        ...state,
-                        currentNodeSection: [],
-                        currentSelectedNodeId: "",
-                        isSelectingNodesModeActivated: false,
-                    }
-                }
-
-                return {
-                    ...state,
-                    currentNodeSection: currentNodeSectionCopy,
-                }
-            } else {
-                if (state.currentSelectedNodeId === res.data.node.id) {
-                    return {
-                        ...state,
-                        currentSelectedNodeId: "",
-                        isSelectingNodesModeActivated: false,
-                    }
-                } else {
-                    return {
-                        ...state,
-                        currentSelectedNodeId: res.data.node.id,
-                        isSelectingNodesModeActivated: true,
-                    }
-                }
-            }
-        });
-
-        appInstance.subscriber.emit('render', state);
-    });
-
-    s.refresh();
-}
-
 function init_lab() {
-    const appInstance = App();
+    const appInstance = {
+        state: initState(),
+        subscriber: subscriber(),
+    };
+
     return {
         setletiant: function (str) {
         },
@@ -566,7 +363,6 @@ function init_lab() {
         setMode: function (str) {
         },
 
-        //Инициализация ВЛ
         init: function () {
             if (document.getElementById("preGeneratedCode").value !== "") {
                 appInstance.state.updateState((state) => {
@@ -596,7 +392,6 @@ function init_lab() {
             const render = (state) => {
                 console.log('state', state);
                 renderTemplate(root, getHTML({...state}));
-                renderDag(state, appInstance);
                 bindActionListeners(appInstance);
             };
 
@@ -604,7 +399,6 @@ function init_lab() {
 
             // инициализируем первую отрисовку
             appInstance.subscriber.emit('render', appInstance.state.getState());
-
         },
 
         getCondition: function () {
