@@ -1,6 +1,5 @@
 package vlab.server_java.check;
 
-import org.json.JSONObject;
 import rlcp.check.ConditionForChecking;
 import rlcp.generate.GeneratingResult;
 import rlcp.server.processor.check.PreCheckProcessor.PreCheckResult;
@@ -16,13 +15,16 @@ import java.math.BigDecimal;
 public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<String> {
     @Override
     public CheckingSingleConditionResult checkSingleCondition(ConditionForChecking condition, String instructions, GeneratingResult generatingResult) {
+        System.out.println("instructions in checkProcessor" + instructions);
+
         double points = 0;
         String comment = "";
 
         try {
             String code = generatingResult.getCode();
-            JSONObject jsonCode = new JSONObject(code);
-            JSONObject jsonInstructions = new JSONObject(instructions);
+            System.out.println("code in checkProcessor" + code);
+
+            //JacksonHelper.fromJson() for code and instructions
         } catch (Exception e) {
             e.printStackTrace();
         }
