@@ -11,10 +11,10 @@ public interface ConvNetNode<T> {
     int getLayerNumber();
 
     @Nullable
-    ConvNetNode<?> getPreviousConnectedNode();
+    ConvNetNode<?> getPrevNode();
 
     @Nullable
-    List<ConvNetNode<?>> getNextConnectedNodes();
+    List<ConvNetNode<?>> getNextNodes();
 
     @Nonnull
     T getPayload();

@@ -4,6 +4,9 @@ import rlcp.check.ConditionForChecking;
 import rlcp.generate.GeneratingResult;
 import rlcp.server.processor.check.PreCheckProcessor.PreCheckResult;
 import rlcp.server.processor.check.PreCheckResultAwareCheckProcessor;
+import vlab.server_java.JacksonHelper;
+import vlab.server_java.generate.Variant;
+import vlab.server_java.model.Solution;
 
 import java.math.BigDecimal;
 
@@ -17,14 +20,13 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
     public CheckingSingleConditionResult checkSingleCondition(ConditionForChecking condition, String instructions, GeneratingResult generatingResult) {
         System.out.println("instructions in checkProcessor" + instructions);
 
-        double points = 0;
-        String comment = "";
+        double points = 0.323;
+        String comment = "GOOOOOD";
 
         try {
-            String code = generatingResult.getCode();
-            System.out.println("code in checkProcessor" + code);
-
-            //JacksonHelper.fromJson() for code and instructions
+            Variant generatedVariant = JacksonHelper.fromJson(generatingResult.getCode(), Variant.class);
+            Solution ourSolution = new Solution(generatedVariant);
+            Solution studentSolution = new Solution(instructions);
         } catch (Exception e) {
             e.printStackTrace();
         }

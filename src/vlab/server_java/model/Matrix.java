@@ -5,7 +5,10 @@ import java.math.RoundingMode;
 import java.util.Random;
 
 public class Matrix {
-    private final double[][] matrix;
+    private double[][] matrix;
+
+    public Matrix() {
+    }
 
     private Matrix(double[][] matrix) {
         this.matrix = matrix;
@@ -34,5 +37,9 @@ public class Matrix {
 
     public double[][] getMatrix() {
         return matrix;
+    }
+
+    public void setMatrix(double[][] matrix) {
+        this.matrix = matrix;
     }
 }
