@@ -1,8 +1,8 @@
 function getHTML(templateData) {
+    //todo extract html from state
+
     let tableData = "";
-
     let countInvalidNodesValue = 0;
-
     if (templateData.nodesValue) {
         for (let i = 0, l = templateData.nodesValue.length; i < l; i++) {
             countInvalidNodesValue += (templateData.nodesValue[i] === null) ? 1 : 0;
@@ -120,11 +120,10 @@ function getHTML(templateData) {
         </div>`;
 }
 
-function renderTemplate(element, html) {
-    element.innerHTML = html;
-}
-
 function initState() {
+    //todo state proposal: existent linked matrices with answers; current slide number.
+    // (rerender slides each time slide is changing)
+
     const sigmoidFunction = "сигмовидная";
     const linearFunction = "линейная";
     const tgFunction = "гиперболический тангенс";
@@ -165,6 +164,7 @@ function initState() {
 }
 
 function subscriber() {
+    //todo eliminate redundant logic (only rerender is required)
     const events = {};
 
     return {
@@ -183,6 +183,8 @@ function subscriber() {
 }
 
 function bindActionListeners(appInstance) {
+    //todo eliminate redundant logic
+
     document.getElementById("error").addEventListener('change', () => {
         const state = appInstance.state.updateState((state) => {
 
@@ -227,123 +229,16 @@ function bindActionListeners(appInstance) {
     }
 
     document.getElementById("addStep").addEventListener('click', () => {
-        // обновляем стейт приложение
-        const state = appInstance.state.updateState((state) => {
-            let currentStep = state.currentStep;
-            let neuronsTableData = state.neuronsTableData.slice();
-            let nodesValue = state.nodesValue.slice();
-            let currentSelectedNodeIdNumber = state.currentSelectedNodeId.match(/(\d+)/)[0];
-            let currentNeuronInputSignalValue = state.currentNeuronInputSignalValue;
-            let currentNeuronOutputSignalValue = state.currentNeuronOutputSignalValue;
-
-            let prevSelectedNodeId = state.currentSelectedNodeId;
-            let prevNeuronInputSignalValue = state.currentNeuronInputSignalValue;
-            let prevNeuronOutputSignalValue = state.currentNeuronOutputSignalValue;
-            let prevNodeSection = state.currentNodeSection.slice();
-
-            if (currentNeuronInputSignalValue === "")
-                currentNeuronInputSignalValue = 0;
-            if (currentNeuronOutputSignalValue === "")
-                currentNeuronOutputSignalValue = 0;
-
-            if (neuronsTableData.length < state.inputNeuronsAmount && !isNaN(currentNeuronInputSignalValue) && !isNaN(currentNeuronOutputSignalValue)) {
-                nodesValue[currentSelectedNodeIdNumber] = currentNeuronOutputSignalValue;
-                currentStep++;
-                neuronsTableData.push({
-                    nodeId: state.currentSelectedNodeId,
-                    neuronInputSignalValue: currentNeuronInputSignalValue,
-                    neuronOutputSignalValue: currentNeuronOutputSignalValue,
-                    nodeSection: [],
-                });
-            } else if (state.currentSelectedNodeId.length > 0 && !isNaN(currentNeuronInputSignalValue) && !isNaN(currentNeuronOutputSignalValue)
-                && state.currentNodeSection.length > 0) {
-                nodesValue[currentSelectedNodeIdNumber] = currentNeuronOutputSignalValue;
-                currentStep++;
-                neuronsTableData.push({
-                    nodeId: state.currentSelectedNodeId,
-                    neuronInputSignalValue: currentNeuronInputSignalValue,
-                    neuronOutputSignalValue: currentNeuronOutputSignalValue,
-                    nodeSection: state.currentNodeSection,
-                });
-            } else {
-                return {
-                    ...state,
-                }
-            }
-
-            return {
-                ...state,
-                currentStep,
-                neuronsTableData,
-                nodesValue,
-                prevSelectedNodeId,
-                prevNeuronInputSignalValue,
-                prevNeuronOutputSignalValue,
-                prevNodeSection,
-                currentSelectedNodeId: "",
-                currentNeuronInputSignalValue: "",
-                currentNeuronOutputSignalValue: "",
-                currentNodeSection: [],
-                isSelectingNodesModeActivated: false,
-            }
-        });
-
         // перересовываем приложение
         appInstance.subscriber.emit('render', state);
     });
 
     document.getElementsByClassName('redrawGraph')[0].addEventListener('click', () => {
-        const state = appInstance.state.updateState((state) => {
-            let yLevelRandomDisplacement = state.nodes.map(node => {
-                return 2 + Math.random() * 3; //смещение ноты по Y из-за того, что не видно значение ребра при отрисовке
-            });
-
-            return {
-                ...state,
-                yLevelRandomDisplacement,
-            }
-        });
-
         // перересовываем приложение
         appInstance.subscriber.emit('render', state);
     });
 
     document.getElementsByClassName("minusStep")[0].addEventListener('click', () => {
-        // обновляем стейт приложение
-        const state = appInstance.state.updateState((state) => {
-            if (state.currentStep > 0) {
-                let neuronsTableData = state.neuronsTableData.slice();
-                let currentSelectedNodeIdNumber = Number(neuronsTableData[neuronsTableData.length - 1].nodeId.match(/(\d+)/)[0]);
-                let currentNodeSection = neuronsTableData[neuronsTableData.length - 1].nodeSection;
-                let currentNeuronInputSignalValue = neuronsTableData[neuronsTableData.length - 1].neuronInputSignalValue;
-                let currentNeuronOutputSignalValue = neuronsTableData[neuronsTableData.length - 1].neuronOutputSignalValue;
-                let currentSelectedNodeId = neuronsTableData[neuronsTableData.length - 1].nodeId;
-
-                neuronsTableData.pop();
-                let nodesValueCopy = state.nodesValue.slice();
-                nodesValueCopy[currentSelectedNodeIdNumber] = null;
-                let prevNeuronInputSignalValue = state.currentNeuronInputSignalValue;
-                let prevNeuronOutputSignalValue = state.currentNeuronOutputSignalValue;
-                return {
-                    ...state,
-                    neuronsTableData,
-                    prevNeuronInputSignalValue,
-                    prevNeuronOutputSignalValue,
-                    currentStep: state.currentStep - 1,
-                    currentSelectedNodeId,
-                    currentNeuronInputSignalValue,
-                    currentNeuronOutputSignalValue,
-                    currentNodeSection,
-                    isSelectingNodesModeActivated: false,
-                    nodesValue: nodesValueCopy,
-                }
-            }
-
-            return {
-                ...state,
-            }
-        });
-
         // перересовываем приложение
         appInstance.subscriber.emit('render', state);
     });
@@ -364,26 +259,19 @@ function init_lab() {
         },
 
         init: function () {
-            if (document.getElementById("preGeneratedCode").value !== "") {
-                appInstance.state.updateState((state) => {
-                    console.log(document.getElementById("preGeneratedCode").value, 'beforeParse');
-                    let graph = JSON.parse(document.getElementById("preGeneratedCode").value);
-                    console.log(graph);
-                    let nodes = graph.nodes;
-                    let yLevelRandomDisplacement = nodes.map(node => {
-                        return 2 + Math.random() * 3; //смещение ноты по Y из-за того, что не видно значение ребра при отрисовке
+            if (document.getElementById("preGeneratedCode")) {
+                if (document.getElementById("preGeneratedCode").value !== "") {
+                    appInstance.state.updateState((state) => {
+                        console.log(document.getElementById("preGeneratedCode").value, 'beforeParse');
+                        let variant = JSON.parse(document.getElementById("preGeneratedCode").value);
+                        console.log(variant);
+
+                        //todo get initial state from variant
+                        return {
+
+                        }
                     });
-
-                    let initNodesValue = [...graph.nodesValue];
-                    initNodesValue.fill(null);
-                    graph.nodesValue = [...initNodesValue];
-
-                    return {
-                        ...state,
-                        ...graph,
-                        yLevelRandomDisplacement,
-                    }
-                });
+                }
             }
 
             const root = document.getElementById('jsLab');
@@ -391,21 +279,21 @@ function init_lab() {
             // основная функция для рендеринга
             const render = (state) => {
                 console.log('state', state);
-                renderTemplate(root, getHTML({...state}));
+                //todo extract html from state
+                root.innerHTML = getHTML({...state});
                 bindActionListeners(appInstance);
             };
 
             appInstance.subscriber.subscribe('render', render);
-
-            // инициализируем первую отрисовку
+            // first render request
             appInstance.subscriber.emit('render', appInstance.state.getState());
-        },
+            },
 
         getCondition: function () {
         },
         getResults: function () {
-            let result = {...appInstance.state.getState()};
-            delete result.edgeWeight;
+            //todo get results from state
+            let result = {qwe: "qwerty"};
             console.log('getResults', result);
             return JSON.stringify(result);
         },
