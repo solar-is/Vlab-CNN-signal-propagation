@@ -3,6 +3,7 @@ package vlab.server_java.model;
 import vlab.server_java.model.nodes.MatrixNetNode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -13,26 +14,15 @@ import java.util.Random;
 public class CNNGenerator {
     public static final CNNGenerator DEFAULT = new CNNGenerator();
 
+    private static final List<String> POSSIBLE_ACTIVATION_FUNCTIONS = Arrays.asList("ReLU", "Linear");
+    private static final List<String> POSSIBLE_SUBSAMPLING_FUNCTIONS = Arrays.asList("Max", "Avg");
+
     private static final int DEFAULT_INPUT_MATRIX_SIZE = 7;
     private static final int DEFAULT_CONVOLUTION_KERNELS_SIZES = 2;
-
-    private static final List<String> POSSIBLE_ACTIVATION_FUNCTIONS;
-    private static final List<String> POSSIBLE_SUBSAMPLING_FUNCTIONS;
-
-    static {
-        POSSIBLE_ACTIVATION_FUNCTIONS = new ArrayList<>();
-        POSSIBLE_ACTIVATION_FUNCTIONS.add("ReLU");
-        POSSIBLE_ACTIVATION_FUNCTIONS.add("Linear");
-
-        POSSIBLE_SUBSAMPLING_FUNCTIONS = new ArrayList<>();
-        POSSIBLE_SUBSAMPLING_FUNCTIONS.add("Max");
-        POSSIBLE_SUBSAMPLING_FUNCTIONS.add("Avg");
-    }
-
-    private static final Random RANDOM = new Random();
-
     private final int inputMatrixSize;
     private final int convKernelsSizes;
+
+    private static final Random RANDOM = new Random();
 
     public CNNGenerator() {
         this.inputMatrixSize = DEFAULT_INPUT_MATRIX_SIZE;

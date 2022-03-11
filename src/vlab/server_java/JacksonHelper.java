@@ -2,7 +2,6 @@ package vlab.server_java;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.annotation.Nonnull;
@@ -32,23 +31,6 @@ public final class JacksonHelper {
         try {
             return objectMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    /**
-     * Deserialize object from JSON string.
-     * Does not throw checked exception (it is converted to {@code UncheckedIOException}).
-     *
-     * @param json  serialization form of object in JSON string
-     * @param clazz reference to type of object
-     * @param <T>   object class
-     * @return deserialized object
-     */
-    public static <T> T fromJson(@Nonnull String json, @Nonnull TypeReference<T> clazz) {
-        try {
-            return objectMapper.readValue(json, clazz);
-        } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
