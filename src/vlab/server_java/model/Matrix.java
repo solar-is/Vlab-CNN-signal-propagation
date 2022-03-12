@@ -10,7 +10,7 @@ public class Matrix {
     public Matrix() {
     }
 
-    private Matrix(double[][] matrix) {
+    public Matrix(double[][] matrix) {
         this.matrix = matrix;
     }
 

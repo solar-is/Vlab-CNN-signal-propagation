@@ -16,22 +16,31 @@ public class CNNGenerator {
 
     private static final List<String> POSSIBLE_ACTIVATION_FUNCTIONS = Arrays.asList("ReLU", "Linear");
     private static final List<String> POSSIBLE_SUBSAMPLING_FUNCTIONS = Arrays.asList("Max", "Avg");
+    private static final List<Matrix> POSSIBLE_CONVOLUTION_KERNELS = Arrays.asList(
+            new Matrix(new double[][]{{1, 1}, {1, 1}}),
+            new Matrix(new double[][]{{0, 1}, {-1, 0}}),
+            new Matrix(new double[][]{{1, 0}, {0, 1}}),
+            new Matrix(new double[][]{{1, -1}, {-1, 1}})
+    );
 
     private static final int DEFAULT_INPUT_MATRIX_SIZE = 7;
-    private static final int DEFAULT_CONVOLUTION_KERNELS_SIZES = 2;
+    private static final int DEFAULT_CONVOLUTION_KERNELS_CNT = 2;
     private final int inputMatrixSize;
-    private final int convKernelsSizes;
+    private final int convKernelsCnt;
 
     private static final Random RANDOM = new Random();
 
     public CNNGenerator() {
         this.inputMatrixSize = DEFAULT_INPUT_MATRIX_SIZE;
-        this.convKernelsSizes = DEFAULT_CONVOLUTION_KERNELS_SIZES;
+        this.convKernelsCnt = DEFAULT_CONVOLUTION_KERNELS_CNT;
     }
 
-    public CNNGenerator(int inputMatrixSize, int convKernelsSizes) {
+    public CNNGenerator(int inputMatrixSize, int convKernelsCnt) {
+        if (inputMatrixSize <= 0 || convKernelsCnt <= 0) {
+            throw new IllegalArgumentException("Matrices dimensions or kernels count can't be negative");
+        }
         this.inputMatrixSize = inputMatrixSize;
-        this.convKernelsSizes = convKernelsSizes;
+        this.convKernelsCnt = convKernelsCnt;
     }
 
     public String generateActivationFunction() {
@@ -42,16 +51,17 @@ public class CNNGenerator {
         return POSSIBLE_SUBSAMPLING_FUNCTIONS.get(RANDOM.nextInt(POSSIBLE_SUBSAMPLING_FUNCTIONS.size()));
     }
 
-    //todo complete real generating logic
     public MatrixNetNode generateInputNode() {
         return new MatrixNetNode(0, null, null, Matrix.randomWithSize(inputMatrixSize));
     }
 
-    //todo complete real generating logic
     public List<Matrix> generateConvolutionKernels() {
         List<Matrix> kernels = new ArrayList<>();
-        for (int i = 0; i < 2; ++i) {
-            kernels.add(Matrix.randomWithSize(convKernelsSizes));
+        int kernelsCnt = POSSIBLE_CONVOLUTION_KERNELS.size();
+        int idx = RANDOM.nextInt(kernelsCnt);
+        for (int i = 0; i < convKernelsCnt; ++i) {
+            kernels.add(POSSIBLE_CONVOLUTION_KERNELS.get(idx >= kernelsCnt ? idx % kernelsCnt : idx));
+            idx++;
         }
         return kernels;
     }

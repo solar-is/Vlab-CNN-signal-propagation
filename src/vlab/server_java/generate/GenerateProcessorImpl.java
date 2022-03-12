@@ -26,6 +26,6 @@ public class GenerateProcessorImpl implements GenerateProcessor {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new GeneratingResult("text from generateProcessor", generatedVariantInJson, "instructions");
+        return new GeneratingResult("text from generateProcessor", generatedVariantInJson, "instructions from generateProcessor");
     }
 }

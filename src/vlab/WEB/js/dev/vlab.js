@@ -1,7 +1,8 @@
 //global mutable state
 var state = {
     matrices: [],
-    currentSlideNumber: 0
+    currentSlideNumber: 0,
+    currentSlideFilledCompletely: false
 };
 
 //info about variant, will be filled on initialization
@@ -13,7 +14,6 @@ var generatedVariant = {
 }
 
 function updateState(callback) {
-    //todo add validation for currentSlideNumber change
     console.log("going to update old state", state)
     state = callback(state);
     console.log('updatedState', state);
@@ -22,32 +22,54 @@ function updateState(callback) {
 
 function rerender() {
     console.log('going to rerender slide using state', state);
-    //todo extract html from state
     document.getElementById('jsLab').innerHTML = getHTML();
     bindActionListeners();
 }
 
 function getHTML() {
-    //todo extract html from current state
+    let kernelsHTML = '';
+    for (let i = 0; i < generatedVariant.kernels.length; i++) {
+        let kernelHTML = '<table class="kernel">';
+        let kernelTable = generatedVariant.kernels[i].matrix;
+        for (let j = 0; j < kernelTable.length; j++) {
+            let rowInTable = kernelTable[j];
+            kernelHTML += '<tr>'
+            for (let k = 0; k < rowInTable.length; k++) {
+                kernelHTML += '<td>' + rowInTable[k] + '</td>';
+            }
+            kernelHTML += '</tr>'
+        }
+        kernelHTML += '</table>';
+        kernelsHTML += kernelHTML;
+    }
+
+    let isPrevButtonDisabled = state.currentSlideNumber === 0;
+    let isNextButtonDisabled = state.currentSlideNumber === 4 || !state.currentSlideFilledCompletely;
 
     return `
         <div class="lab">
             <div class="lab-table">
                 <div class="lab-header_text">Алгоритм последовательного распространения сигнала в свёрточной нейронной сети</div>
                 <div class="header-buttons">
+                    <span class="kernel-caption">Ядра свёртки:</span>
+                    ${kernelsHTML}
+                    <span class="activation-func-caption">Функция активации:</span>
+                    <span class="activation-func-value">${generatedVariant.activationFunction}</span>
+                    <span class="subsampling-func-caption">Функция подвыбоки:</span>
+                    <span class="subsampling-func-value">${generatedVariant.subSamplingFunction}</span>
                     <button type="button" class="btn btn-info showReference" data-toggle="modal" data-target="#exampleModalScrollable">Справка</button>
                 </div>
                 <div class="graphComponent">
                     <div id="graphContainer"></div>
                 </div>
-                <div class="steps">
-                    <div class="steps-buttons">
-                        <input id="addStep" class="addStep btn btn-success" type="button" value="+"/>
-                        <input type="button" class="minusStep btn btn-danger" value="-">
+                <div class="footer">
+                    <div class="next-prev-buttons">
+                        <input class="prevButton btn btn-danger" type="button" value="К предыдущему слою" ${isPrevButtonDisabled ? "disabled" : ""}>
+                        <input class="nextButton btn btn-success" type="button" value="К следующему слою" ${isNextButtonDisabled ? "disabled" : ""}/>
                     </div>
-                    <div class="maxFlow">
+                    <div class="mse-value">
                         <span>MSE:</span>
-                        <input type='number' class='maxFlow-input' id="error" value="0"'/>
+                        <input type='number' class='mse-value-input' id="error" value="0"'/>
                     </div>                                                                                                                                            
                 </div>
             </div> 
@@ -69,7 +91,7 @@ function getHTML() {
                         </div>
                       </div>
                     </div>
-                </div>                                                                      
+                </div>
         </div>`;
 }
 
@@ -109,7 +131,8 @@ function init_lab() {
                         //fill global state
                         return {
                             matrices: [generatedVariant.inputMatrix],
-                            currentSlideNumber: 0
+                            currentSlideNumber: 0,
+                            currentSlideFilledCompletely: false
                         }
                     });
                 }
@@ -120,7 +143,6 @@ function init_lab() {
         getCondition: function () {
         },
         getResults: function () {
-            //todo get results from state
             console.log('stateBeforeGetResults', state);
             let result = {qwe: "qwerty"};
             console.log('getResultsValue', result);

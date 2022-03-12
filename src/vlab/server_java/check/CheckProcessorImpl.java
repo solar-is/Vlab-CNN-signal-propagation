@@ -27,6 +27,7 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
             Variant generatedVariant = JacksonHelper.fromJson(generatingResult.getCode(), Variant.class);
             Solution ourSolution = new Solution(generatedVariant);
             Solution studentSolution = new Solution(instructions);
+            //compare ourSolution and studentSolution
         } catch (Exception e) {
             e.printStackTrace();
         }

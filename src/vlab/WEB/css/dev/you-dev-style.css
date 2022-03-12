@@ -1,28 +1,8 @@
-#jsLab .node rect,
-#jsLab .node circle,
-#jsLab .node ellipse,
-#jsLab .node polygon {
-    stroke: #333;
-    fill: #eeeeee;
-    stroke-width: 1.5px;
-}
-
-#jsLab .node circle:hover
-{
-    cursor: pointer;
-}
-
-#jsLab .addStep, #jsLab .minusStep
+#jsLab .nextButton, #jsLab .prevButton
 {
     text-align: center;
     border-radius: 5px;
-    width: 40px;
     height: 40px;
-}
-
-#jsLab .minusStep
-{
-    margin-left: 10px;
 }
 
 #jsLab .lab-header
@@ -43,10 +23,10 @@
     margin: 20px auto;
 }
 
-#jsLab .steps-buttons
+#jsLab .next-prev-buttons
 {
     display: inline-flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     width: 100%;
     margin: 20px auto;
 }
@@ -58,10 +38,10 @@
     width: 100%;
 }
 
-#jsLab .steps
+#jsLab .footer
 {
     margin: 20px auto;
-    padding: 0 50px;
+    padding: 0 15px;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -69,18 +49,14 @@
     align-items: flex-start;
 }
 
-#jsLab .maxFlow
-{
-    margin-top: 20px;
-}
-
 #jsLab .showReference
 {
     padding-top: 5px;
-    padding-bottom: 5px
+    padding-bottom: 5px;
+    margin-left: auto;
 }
 
-#jsLab .maxFlow-input
+#jsLab .mse-value-input
 {
     padding: 5px 10px;
 }
@@ -105,9 +81,10 @@
 #jsLab .header-buttons
 {
     display: inline-flex;
-    justify-content: space-between;
     padding: 10px;
     width: 100%;
+    justify-content: flex-start;
+    align-items: center;
 }
 
 #jsLab .modal-body
@@ -127,7 +104,7 @@
     -moz-appearance: textfield;
 }
 
-#jsLab .addStep, #jsLab .minusStep, #jsLab .showReference
+#jsLab .nextButton, #jsLab .prevButton, #jsLab .showReference
 {
     height: 40px;
 }
@@ -139,4 +116,44 @@
     border-bottom: 1px solid #e1e1e1;
     text-align: center;
     font-weight: bold;
+}
+
+table, th, td {
+    border: 2px solid #17a2b8;
+    width: 50px;
+    text-align: center;
+}
+
+.kernel-caption {
+    font-size: 20px;
+    color: #17a2b8;
+    border-color: #17a2b8;
+}
+
+.kernel {
+    margin-left: 10px;
+}
+
+.activation-func-caption {
+    margin-left: 30px;
+    font-size: 20px;
+    color: #17a2b8;
+}
+
+.subsampling-func-caption {
+    margin-left: 30px;
+    font-size: 20px;
+    color: #17a2b8;
+}
+
+.activation-func-value {
+    margin-left: 3px;
+    font-size: 20px;
+    color: #005465;
+}
+
+.subsampling-func-value {
+    margin-left: 3px;
+    font-size: 20px;
+    color: #005465;
 }
