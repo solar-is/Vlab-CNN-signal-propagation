@@ -1,20 +1,17 @@
-#jsLab .nextButton, #jsLab .prevButton
-{
+#jsLab .nextButton, #jsLab .prevButton {
     text-align: center;
     border-radius: 5px;
     height: 40px;
 }
 
-#jsLab .lab-header
-{
+#jsLab .lab-header {
     display: inline-flex;
     justify-content: space-between;
     width: 100%;
     align-items: center;
 }
 
-#jsLab .lab
-{
+#jsLab .lab {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -23,24 +20,21 @@
     margin: 20px auto;
 }
 
-#jsLab .next-prev-buttons
-{
+#jsLab .next-prev-buttons {
     display: inline-flex;
     justify-content: space-between;
     width: 100%;
     margin: 20px auto;
 }
 
-#jsLab .lab-table
-{
+#jsLab .lab-table {
     border: 2px solid #e1e1e1;
     border-collapse: collapse;
     width: 100%;
 }
 
-#jsLab .footer
-{
-    margin: 20px auto;
+#jsLab .footer {
+    margin: 0 0 20px 0;
     padding: 0 15px;
     width: 100%;
     display: flex;
@@ -49,37 +43,46 @@
     align-items: flex-start;
 }
 
-#jsLab .showReference
-{
+#jsLab .showReference {
     padding-top: 5px;
     padding-bottom: 5px;
     margin-left: auto;
 }
 
-#jsLab .mse-value-input
-{
+#jsLab .mse-value-input {
     padding: 5px 10px;
 }
 
-#jsLab .graphComponent
-{
+#jsLab .slide {
+    display: flex;
+    flex-direction: row;
     width: 100%;
 }
 
-#jsLab #graphContainer {
-    text-align: center;
+#jsLab #slide-left-part {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
     padding: 40px;
     margin-top: 15px;
-    width: 100%;
+    width: 50%;
     height: 400px;
 }
 
-#jsLab .header-buttons
-{
+#jsLab #slide-right-part {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 40px;
+    margin-top: 15px;
+    width: 50%;
+    height: 400px;
+}
+
+#jsLab .header-buttons {
     display: inline-flex;
     padding: 10px;
     width: 100%;
@@ -87,8 +90,7 @@
     align-items: center;
 }
 
-#jsLab .modal-body
-{
+#jsLab .modal-body {
     width: 100%;
 }
 
@@ -104,13 +106,11 @@
     -moz-appearance: textfield;
 }
 
-#jsLab .nextButton, #jsLab .prevButton, #jsLab .showReference
-{
+#jsLab .nextButton, #jsLab .prevButton, #jsLab .showReference {
     height: 40px;
 }
 
-.lab-header_text
-{
+.lab-header_text {
     width: 100%;
     padding: 20px;
     border-bottom: 1px solid #e1e1e1;
@@ -119,7 +119,8 @@
 }
 
 table, th, td {
-    border: 2px solid #17a2b8;
+    padding: 5px;
+    border: 2px solid #4ee7ff;
     width: 50px;
     text-align: center;
 }
@@ -131,17 +132,17 @@ table, th, td {
 }
 
 .kernel {
-    margin-left: 10px;
+    margin-left: 15px;
 }
 
 .activation-func-caption {
-    margin-left: 30px;
+    margin-left: 35px;
     font-size: 20px;
     color: #17a2b8;
 }
 
 .subsampling-func-caption {
-    margin-left: 30px;
+    margin-left: 35px;
     font-size: 20px;
     color: #17a2b8;
 }
@@ -156,4 +157,39 @@ table, th, td {
     margin-left: 3px;
     font-size: 20px;
     color: #005465;
+}
+
+.slide-division-line {
+    border-left: 1px solid #000000;
+    height: auto;
+}
+
+.header-end-line {
+    border-bottom: 1px solid #000000;
+    width: auto;
+}
+
+.footer-begin-line {
+    border-top: 1px solid #000000;
+    width: auto;
+}
+
+.left-side-matrix {
+    width: auto;
+    text-align: center;
+}
+
+.right-side-matrix {
+    width: auto;
+    text-align: center;
+}
+
+.matrixWithAddButton {
+    display: flex;
+    align-items: center;
+}
+
+.matrixWithAddButton button {
+    font-size: 20px;
+    padding: 0 2px 4px 2px;
 }

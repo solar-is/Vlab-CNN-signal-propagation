@@ -1,16 +1,19 @@
+let matrixIdCounter = 0;
+
 //global mutable state
 var state = {
     matrices: [],
     currentSlideNumber: 0,
-    currentSlideFilledCompletely: false
+    currentSlideIsEmpty: true,
+    mse: 0
 };
 
-//info about variant, will be filled on initialization
+//info about generated variant, will be filled only once on initialization
 var generatedVariant = {
-    activationFunction: "",
-    subSamplingFunction: "",
+    inputMatrix: [],
     kernels: [],
-    inputMatrix: []
+    activationFunction: "",
+    subSamplingFunction: ""
 }
 
 function updateState(callback) {
@@ -20,56 +23,176 @@ function updateState(callback) {
     return state;
 }
 
+function linkLeftMatricesToRight(leftSideMatrices, rightSideMatrices) {
+    //todo draw links from left to right
+}
+
+function makeRightMatricesEditable(rightMatrices) {
+    for (let i = 0; i < rightMatrices.length; i++) {
+        var table = rightMatrices.item(i);
+        var cells = table.getElementsByTagName('td');
+
+        for (let j = 0; j < cells.length; j++) {
+            cells[j].onclick = function () {
+                if (this.hasAttribute('data-clicked')) {
+                    return;
+                }
+
+                this.setAttribute('data-clicked', 'yes')
+                this.setAttribute('data-text', this.innerHTML)
+
+                var input = document.createElement('input');
+                input.setAttribute('type', 'number')
+                input.value = this.innerHTML;
+                input.style.width = this.offsetWidth - (this.clientLeft * 2) + "px"
+                input.style.height = this.offsetHeight - (this.clientTop * 2) + "px"
+                input.style.border = '0px'
+                input.style.fontFamily = 'inherit'
+                input.style.fontSize = 'inherit'
+                input.style.textAlign = 'inherit'
+                input.style.backgroundColor = "LightGoldenRodYellow"
+
+                input.onblur = function () {
+                    var td = input.parentElement
+                    var orig_text = input.parentElement.getAttribute('data-text')
+                    var current_text = this.value
+
+                    if (orig_text !== current_text) {
+                        //todo update global state!
+                        td.removeAttribute('data-clicked')
+                        td.removeAttribute('data-text')
+                        td.innerHTML = current_text
+                        td.style.cssText = 'padding: 5px'
+                        console.log(orig_text + ' is changed to ' + current_text)
+                    } else {
+                        td.removeAttribute('data-clicked')
+                        td.removeAttribute('data-text')
+                        td.innerHTML = orig_text
+                        td.style.cssText = 'padding: 5px'
+                        console.log('no changes')
+                    }
+                }
+
+                input.onkeypress = function () {
+                    if (event.keyCode === 13) {
+                        this.blur()
+                    }
+                }
+
+                this.innerHTML = '';
+                this.style.cssText = 'padding: 0px 0px'
+                this.append(input)
+                this.firstElementChild.select()
+            }
+        }
+    }
+}
+
 function rerender() {
     console.log('going to rerender slide using state', state);
     document.getElementById('jsLab').innerHTML = getHTML();
+
+    var rightSideMatrices = document.getElementsByClassName('right-side-matrix')
+    var leftSideMatrices = document.getElementsByClassName('left-side-matrix')
+    linkLeftMatricesToRight(leftSideMatrices, rightSideMatrices);
+    makeRightMatricesEditable(rightSideMatrices);
+
     bindActionListeners();
 }
 
 function getHTML() {
-    let kernelsHTML = '';
-    for (let i = 0; i < generatedVariant.kernels.length; i++) {
-        let kernelHTML = '<table class="kernel">';
-        let kernelTable = generatedVariant.kernels[i].matrix;
-        for (let j = 0; j < kernelTable.length; j++) {
-            let rowInTable = kernelTable[j];
-            kernelHTML += '<tr>'
-            for (let k = 0; k < rowInTable.length; k++) {
-                kernelHTML += '<td>' + rowInTable[k] + '</td>';
+    function getKernelsHTML() {
+        let kernelsHTML = '';
+        for (let i = 0; i < generatedVariant.kernels.length; i++) {
+            let kernelHTML = '<table class="kernel">';
+            let kernelTable = generatedVariant.kernels[i].matrix;
+            for (let j = 0; j < kernelTable.length; j++) {
+                let rowInTable = kernelTable[j];
+                kernelHTML += '<tr>'
+                for (let k = 0; k < rowInTable.length; k++) {
+                    kernelHTML += '<td>' + rowInTable[k] + '</td>';
+                }
+                kernelHTML += '</tr>'
             }
-            kernelHTML += '</tr>'
+            kernelHTML += '</table>';
+            kernelsHTML += kernelHTML;
         }
-        kernelHTML += '</table>';
-        kernelsHTML += kernelHTML;
+        return kernelsHTML;
     }
 
-    let isPrevButtonDisabled = state.currentSlideNumber === 0;
-    let isNextButtonDisabled = state.currentSlideNumber === 4 || !state.currentSlideFilledCompletely;
+    function getSlidePartHTML(matrices, classAttribute) {
+        let result = ''
+        for (let i = 0; i < matrices.length; i++) {
+            let matrix = matrices[i].matrix;
+            let matrixHTML = '<div class="matrixWithAddButton"><table id="' + matrices[i].id + '" class="' + classAttribute + '">';
+            for (let j = 0; j < matrix.length; j++) {
+                let rowInTable = matrix[j];
+                matrixHTML += '<tr>'
+                for (let k = 0; k < rowInTable.length; k++) {
+                    let value = rowInTable[k];
+                    matrixHTML += '<td>' + value + '</td>';
+                }
+                matrixHTML += '</tr>'
+            }
+            matrixHTML += '</table>';
+            matrixHTML += '<button type="button" class="btn btn-primary btn-sm">+</button></div>';
+            result = matrixHTML;
+        }
+        return result;
+    }
+    
+    let leftSideMatrices = [];
+    let rightSideMatrices = [];
+    for (let i = 0; i < state.matrices.length; i++) {
+        let matrix = state.matrices[i];
+        if (matrix.slideNumber === state.currentSlideNumber) {
+            leftSideMatrices.push({
+                matrix: matrix.matrixValue,
+                id: matrix.matrixId
+            });
+        }
+        if (matrix.slideNumber === state.currentSlideNumber + 1) {
+            rightSideMatrices.push({
+                matrix: matrix.matrixValue,
+                id: matrix.matrixId
+            });
+        }
+    }
 
+    //todo add clear button to footer
     return `
         <div class="lab">
             <div class="lab-table">
                 <div class="lab-header_text">Алгоритм последовательного распространения сигнала в свёрточной нейронной сети</div>
                 <div class="header-buttons">
                     <span class="kernel-caption">Ядра свёртки:</span>
-                    ${kernelsHTML}
+                    ${getKernelsHTML()}
                     <span class="activation-func-caption">Функция активации:</span>
                     <span class="activation-func-value">${generatedVariant.activationFunction}</span>
                     <span class="subsampling-func-caption">Функция подвыбоки:</span>
                     <span class="subsampling-func-value">${generatedVariant.subSamplingFunction}</span>
                     <button type="button" class="btn btn-info showReference" data-toggle="modal" data-target="#exampleModalScrollable">Справка</button>
                 </div>
-                <div class="graphComponent">
-                    <div id="graphContainer"></div>
+                <div class="header-end-line"></div>
+                <div class="slide">
+                    <div id="slide-left-part">
+                        ${getSlidePartHTML(leftSideMatrices, "left-side-matrix")}
+                    </div>
+                    <div class="slide-division-line"></div>
+                    <div id="slide-right-part">
+                        ${getSlidePartHTML(rightSideMatrices, "right-side-matrix")}
+                    </div>
                 </div>
+                <div class="footer-begin-line"></div>
                 <div class="footer">
                     <div class="next-prev-buttons">
-                        <input class="prevButton btn btn-danger" type="button" value="К предыдущему слою" ${isPrevButtonDisabled ? "disabled" : ""}>
-                        <input class="nextButton btn btn-success" type="button" value="К следующему слою" ${isNextButtonDisabled ? "disabled" : ""}/>
+                        <input id="prevButton" class="prevButton btn btn-primary" type="button" value="К предыдущему слою" ${state.currentSlideNumber === 0 ? "disabled" : ""}>
+                        <input id="clearButton" class="clearButton btn btn-danger" type="button" value="Очистить текущий слой">
+                        <input id="nextButton" class="nextButton btn btn-primary" type="button" value="К следующему слою" ${state.currentSlideNumber === 4 || state.currentSlideIsEmpty ? "disabled" : ""}/>
                     </div>
                     <div class="mse-value">
                         <span>MSE:</span>
-                        <input type='number' class='mse-value-input' id="error" value="0"'/>
+                        <input type='number' class='mse-value-input' id="MSE_value" value="0"'/>
                     </div>                                                                                                                                            
                 </div>
             </div> 
@@ -95,13 +218,43 @@ function getHTML() {
         </div>`;
 }
 
-function bindActionListeners(appInstance) {
-    //todo add listeners for all action types (track changing from client -> then update state -> then rerender slide)
+function bindActionListeners() {
+    document.getElementById("MSE_value").addEventListener('change', () => {
+        updateState((state) => {
+            if (isNaN(document.getElementById("MSE_value").value)) {
+                return {
+                    ...state,
+                    mse: 0,
+                }
+            }
+            return {
+                ...state,
+                mse: Number(document.getElementById("MSE_value").value),
+            }
+        });
+    });
 
-    /*document.getElementById("error").addEventListener('change', () => {
-        //updateState
-        //rerender
-    });*/
+    document.getElementById("prevButton").addEventListener('click', () => {
+        updateState((state) => {
+            return {
+                ...state
+            }
+        });
+        rerender();
+    });
+
+    document.getElementById("nextButton").addEventListener('click', () => {
+        updateState((state) => {
+            return {
+                ...state
+            }
+        });
+        rerender();
+    });
+
+    //clear button
+
+    //add matrix button
 }
 
 function init_lab() {
@@ -130,9 +283,18 @@ function init_lab() {
 
                         //fill global state
                         return {
-                            matrices: [generatedVariant.inputMatrix],
+                            matrices: [
+                                //first matrix of first slide
+                                {
+                                    matrixId: 'id-' + (matrixIdCounter++),
+                                    slideNumber: 0,
+                                    matrixValue: generatedVariant.inputMatrix,
+                                    linkedMatricesIds: []
+                                }
+                            ],
                             currentSlideNumber: 0,
-                            currentSlideFilledCompletely: false
+                            currentSlideIsEmpty: true,
+                            mse: 0
                         }
                     });
                 }
@@ -144,7 +306,10 @@ function init_lab() {
         },
         getResults: function () {
             console.log('stateBeforeGetResults', state);
-            let result = {qwe: "qwerty"};
+            let result = {
+                matrices: state.matrices,
+                mse: state.mse
+            }
             console.log('getResultsValue', result);
             return JSON.stringify(result);
         },
