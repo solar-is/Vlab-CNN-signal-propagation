@@ -243,7 +243,7 @@ function getHTML() {
                 <div class="footer">
                     <div class="next-prev-buttons">
                         <input id="prevButton" class="prevButton btn btn-primary" type="button" value="К предыдущему слою" ${state.currentSlideNumber === 0 ? "disabled" : ""}>
-                        <input id="clearButton" class="clearButton btn btn-danger" type="button" value="Очистить текущий слой">
+                        <input id="clearButton" class="clearButton btn btn-danger" type="button" value="Очистить слой">
                         <input id="nextButton" class="nextButton btn btn-primary" type="button" value="К следующему слою" ${state.currentSlideNumber === 3 || state.currentSlideIsEmpty ? "disabled" : ""}/>
                     </div>
                     <div class="mse-value">
