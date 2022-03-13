@@ -1,7 +1,5 @@
 package vlab.server_java.model;
 
-import vlab.server_java.model.nodes.MatrixNetNode;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -52,7 +50,7 @@ public class CNNGenerator {
     }
 
     public MatrixNetNode generateInputNode() {
-        return new MatrixNetNode(0, null, null, Matrix.randomWithSize(inputMatrixSize));
+        return new MatrixNetNode(0, null, Matrix.randomWithSize(inputMatrixSize));
     }
 
     public List<Matrix> generateConvolutionKernels() {

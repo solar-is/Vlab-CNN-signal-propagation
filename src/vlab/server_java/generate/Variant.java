@@ -3,7 +3,7 @@ package vlab.server_java.generate;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import vlab.server_java.model.Matrix;
-import vlab.server_java.model.nodes.MatrixNetNode;
+import vlab.server_java.model.MatrixNetNode;
 
 import javax.annotation.Nonnull;
 import java.util.List;

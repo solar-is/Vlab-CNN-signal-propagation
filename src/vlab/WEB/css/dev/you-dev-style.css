@@ -61,25 +61,21 @@
 
 #jsLab #slide-left-part {
     display: flex;
-    justify-content: center;
+    justify-content: space-evenly;
     align-items: center;
     flex-direction: column;
-    padding: 40px;
-    margin-top: 15px;
     width: 50%;
-    height: 400px;
+    height: 500px;
 }
 
 #jsLab #slide-right-part {
     display: flex;
     text-align: center;
-    justify-content: center;
+    justify-content: space-evenly;
     align-items: center;
     flex-direction: column;
-    padding: 40px;
-    margin-top: 15px;
     width: 50%;
-    height: 400px;
+    height: 500px;
 }
 
 #jsLab .header-buttons {
@@ -194,8 +190,7 @@ table, th, td {
     padding: 0 2px 4px 2px;
 }
 
-/* The Modal (background) */
-.modal {
+#addMatrixButtonModal {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
     z-index: 1; /* Sit on top */
@@ -210,13 +205,13 @@ table, th, td {
 }
 
 /* Modal Content */
-.modal-content {
+.addMatirx-modal-content {
     position: relative;
     background-color: #fefefe;
     margin: auto;
     padding: 0;
     border: 1px solid #888;
-    width: 80%;
+    width: 25%;
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
     -webkit-animation-name: animatetop;
     -webkit-animation-duration: 0.4s;
@@ -236,25 +231,39 @@ table, th, td {
 }
 
 /* The Close Button */
-.close {
+.close-addMatrix-modal {
     color: white;
     float: right;
     font-size: 28px;
     font-weight: bold;
 }
 
-.close:hover,
-.close:focus {
+.close-addMatrix-modal:hover,
+.close-addMatrix-modal:focus {
     color: #000;
     text-decoration: none;
     cursor: pointer;
 }
 
-.modal-header {
+.addMatirx-modal-header {
     padding: 2px 16px;
-    background-color: #5cb85c;
+    background-color: #17a2b8;
     color: white;
     flex-direction: row-reverse;
 }
 
-.modal-body {padding: 2px 16px;}
+.addMatirx-modal-body {
+    padding: 2px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.addMatirx-modal-body > * {
+    margin: 10px 0;
+}
+
+.addMatirx-modal-header h5 {
+    font-size: 17px;
+    margin-block-end: 5px;
+}

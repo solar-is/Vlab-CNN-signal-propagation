@@ -1,15 +1,17 @@
 let matrixIdCounter = 0;
 
 //global mutable state
-var state = {
+let state = {
     matrices: [],
     currentSlideNumber: 0,
     currentSlideIsEmpty: true,
-    mse: 0
+    mse: 0,
 };
 
+let lines = [];
+
 //info about generated variant, will be filled only once on initialization
-var generatedVariant = {
+let generatedVariant = {
     inputMatrix: [],
     kernels: [],
     activationFunction: "",
@@ -23,17 +25,43 @@ function updateState(callback) {
     return state;
 }
 
-function linkLeftMatricesToRight(leftSideMatrices, rightSideMatrices) {
-    //todo draw links from left to right
+function linkLeftMatricesToRight(leftSideMatrices) {
+    for (let i = 0; i < leftSideMatrices.length; i++) {
+        let matrixElement = leftSideMatrices.item(i);
+        let leftMatrixId = matrixElement.id
+        for (let j = 0; j < state.matrices.length; j++) {
+            if (state.matrices[j].matrixId === leftMatrixId) {
+                let linkedMatrices = state.matrices[j].linkedMatricesIds;
+                for (let k = 0; k < linkedMatrices.length; k++) {
+                    let linkedMatrixId = linkedMatrices[k];
+                    let linkedMatrixElement = document.getElementById(linkedMatrixId)
+                    let line = new LeaderLine(
+                        matrixElement,
+                        linkedMatrixElement
+                    );
+                    line.size = 3;
+                    line.color = 'rgba(30, 130, 250, 0.5)';
+                    line.dash = true
+                    line.animation = true
+                    line.opacity = 0.7
+                    lines.push(line)
+                }
+            }
+        }
+    }
 }
 
-function makeRightMatricesEditable(rightMatrices) {
-    for (let i = 0; i < rightMatrices.length; i++) {
-        var table = rightMatrices.item(i);
-        var cells = table.getElementsByTagName('td');
+function makeMatricesEditable(matrices) {
+    for (let i = 0; i < matrices.length; i++) {
+        let tableElement = matrices.item(i);
+        let matrixId = tableElement.id;
+        let tds = tableElement.getElementsByTagName('td');
+        let cellsInOneRowCnt = tds.length / tableElement.getElementsByTagName('tr').length;
 
-        for (let j = 0; j < cells.length; j++) {
-            cells[j].onclick = function () {
+        for (let j = 0; j < tds.length; j++) {
+            tds[j].setAttribute('row_val', Math.floor(j / cellsInOneRowCnt))
+            tds[j].setAttribute('column_val', j % cellsInOneRowCnt)
+            tds[j].onclick = function () {
                 if (this.hasAttribute('data-clicked')) {
                     return;
                 }
@@ -41,7 +69,7 @@ function makeRightMatricesEditable(rightMatrices) {
                 this.setAttribute('data-clicked', 'yes')
                 this.setAttribute('data-text', this.innerHTML)
 
-                var input = document.createElement('input');
+                let input = document.createElement('input');
                 input.setAttribute('type', 'number')
                 input.value = this.innerHTML;
                 input.style.width = this.offsetWidth - (this.clientLeft * 2) + "px"
@@ -53,23 +81,29 @@ function makeRightMatricesEditable(rightMatrices) {
                 input.style.backgroundColor = "LightGoldenRodYellow"
 
                 input.onblur = function () {
-                    var td = input.parentElement
-                    var orig_text = input.parentElement.getAttribute('data-text')
-                    var current_text = this.value
+                    let td = input.parentElement
+                    let orig_text = td.getAttribute('data-text')
+                    let current_text = this.value
 
                     if (orig_text !== current_text) {
-                        //todo update global state!
+                        let rowVal = td.getAttribute('row_val')
+                        let columnVal = td.getAttribute('column_val')
+
                         td.removeAttribute('data-clicked')
                         td.removeAttribute('data-text')
                         td.innerHTML = current_text
                         td.style.cssText = 'padding: 5px'
-                        console.log(orig_text + ' is changed to ' + current_text)
+
+                        for (let k = 0; k < state.matrices.length; k++) {
+                            if (state.matrices[k].matrixId === matrixId) {
+                                state.matrices[k].matrixValue[rowVal][columnVal] = parseFloat(current_text);
+                            }
+                        }
                     } else {
                         td.removeAttribute('data-clicked')
                         td.removeAttribute('data-text')
                         td.innerHTML = orig_text
                         td.style.cssText = 'padding: 5px'
-                        console.log('no changes')
                     }
                 }
 
@@ -90,12 +124,16 @@ function makeRightMatricesEditable(rightMatrices) {
 
 function rerender() {
     console.log('going to rerender slide using state', state);
+
+    for (let i = 0; i < lines.length; i++) {
+        lines[i].remove()
+    }
+    lines.length = 0;
+
     document.getElementById('jsLab').innerHTML = getHTML();
 
-    var rightSideMatrices = document.getElementsByClassName('right-side-matrix')
-    var leftSideMatrices = document.getElementsByClassName('left-side-matrix')
-    linkLeftMatricesToRight(leftSideMatrices, rightSideMatrices);
-    makeRightMatricesEditable(rightSideMatrices);
+    linkLeftMatricesToRight(document.getElementsByClassName('left-side-matrix'));
+    makeMatricesEditable(document.getElementsByClassName('right-side-matrix'));
 
     bindActionListeners();
 }
@@ -135,8 +173,12 @@ function getHTML() {
                 matrixHTML += '</tr>'
             }
             matrixHTML += '</table>';
-            matrixHTML += '<button type="button" class="btn btn-primary btn-sm">+</button></div>';
-            result = matrixHTML;
+            let buttonHTML = '<button type="button" class="btn btn-primary btn-sm">+</button>';
+            if (classAttribute === 'right-side-matrix') {
+                buttonHTML = '';
+            }
+            matrixHTML += buttonHTML + '</div>';
+            result += matrixHTML;
         }
         return result;
     }
@@ -159,7 +201,6 @@ function getHTML() {
         }
     }
 
-    //todo add clear button to footer
     return `
         <div class="lab">
             <div class="lab-table">
@@ -184,16 +225,16 @@ function getHTML() {
                     </div>
                 </div>
                 
-                <div id="addMatrixButtonModal" class="modal">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <span class="close-modal">&times;</span>
-                            <h2>Добавить новую таблицу</h2>
+                <div id="addMatrixButtonModal">
+                    <div class="addMatirx-modal-content">
+                        <div class="addMatirx-modal-header">
+                            <span class="close-addMatrix-modal">&times;</span>
+                            <h5>Добавить новую таблицу</h5>
                         </div>
-                        <div class="modal-body">
-                            <input id="width-modal" type="number" value="1" placeholder="Ширина"/>
-                            <input id="height-modal" type="number" value="1" placeholder="Высота"/>
-                            <input id="modal-confirm-button" type="button" value="Добавить">
+                        <div class="addMatirx-modal-body">
+                            <input id="width-modal" type="number" required placeholder="Ширина"/>
+                            <input id="height-modal" type="number" required placeholder="Высота"/>
+                            <input id="modal-confirm-button" type="button" class="btn-info" value="Добавить">
                         </div>
                     </div>
                 </div>
@@ -203,11 +244,11 @@ function getHTML() {
                     <div class="next-prev-buttons">
                         <input id="prevButton" class="prevButton btn btn-primary" type="button" value="К предыдущему слою" ${state.currentSlideNumber === 0 ? "disabled" : ""}>
                         <input id="clearButton" class="clearButton btn btn-danger" type="button" value="Очистить текущий слой">
-                        <input id="nextButton" class="nextButton btn btn-primary" type="button" value="К следующему слою" ${state.currentSlideNumber === 4 || state.currentSlideIsEmpty ? "disabled" : ""}/>
+                        <input id="nextButton" class="nextButton btn btn-primary" type="button" value="К следующему слою" ${state.currentSlideNumber === 3 || state.currentSlideIsEmpty ? "disabled" : ""}/>
                     </div>
                     <div class="mse-value">
                         <span>MSE:</span>
-                        <input type='number' class='mse-value-input' id="MSE_value" value="0"'/>
+                        <input type='number' class='mse-value-input' id="MSE_value" value="${state.mse}"'/>
                     </div>                                                                                                                                            
                 </div>
             </div> 
@@ -233,7 +274,20 @@ function getHTML() {
         </div>`;
 }
 
+function emptyMatrixWithSize(height, width) {
+    let result = [];
+    for (let i = 0; i < height; i++) {
+        let row = []
+        for (let j = 0; j < width; j++) {
+            row.push(0);
+        }
+        result.push(row)
+    }
+    return result;
+}
+
 function bindActionListeners() {
+    //changing of MSE
     document.getElementById("MSE_value").addEventListener('change', () => {
         updateState((state) => {
             if (isNaN(document.getElementById("MSE_value").value)) {
@@ -249,59 +303,142 @@ function bindActionListeners() {
         });
     });
 
+    //prev button clicked
     document.getElementById("prevButton").addEventListener('click', () => {
         updateState((state) => {
             return {
                 ...state,
+                currentSlideIsEmpty: false,
                 currentSlideNumber: state.currentSlideNumber - 1
             }
         });
         rerender();
     });
 
+    //next button clicked
     document.getElementById("nextButton").addEventListener('click', () => {
+        let rightPartMatricesExist = false;
+        for (let i = 0; i < state.matrices.length; i++) {
+            if (state.matrices[i].slideNumber === state.currentSlideNumber + 2) {
+                rightPartMatricesExist = true;
+            }
+        }
+
         updateState((state) => {
             return {
                 ...state,
+                currentSlideIsEmpty: !rightPartMatricesExist,
                 currentSlideNumber: state.currentSlideNumber + 1
             }
         });
+
         rerender();
     });
 
-    //clear button
-
-    var buttons = document.getElementsByClassName("btn-sm");
-    for (let i = 0; i < buttons.length; i++) {
-        let modal = document.getElementById("addMatrixButtonModal");
-        let clearButton = buttons.item(i)
-        let span = document.getElementsByClassName("close-modal")[0];
-
-        // When the user clicks the button, open the modal
-        clearButton.onclick = function () {
-            modal.style.display = "block";
+    function removeItem(array, item){
+        for(let i in array){
+            if(array[i] === item){
+                array.splice(i,1);
+                break;
+            }
         }
+    }
 
-        // When the user clicks on <span> (x), close the modal
-        span.onclick = function () {
-            modal.style.display = "none";
-        }
+    document.getElementById("clearButton").addEventListener('click', () => {
+        state.currentSlideIsEmpty = true;
 
-        // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function (event) {
-            if (event.target === modal) {
-                modal.style.display = "none";
+        //remove all matrices from current slide right part and following slides
+        let matricesToRemove = []
+        for (let i = 0; i < state.matrices.length; i++) {
+            if (state.matrices[i].slideNumber > state.currentSlideNumber) {
+                matricesToRemove.push(state.matrices[i].matrixId);
             }
         }
 
-        let confirmButton = document.getElementById("modal-confirm-button");
-        confirmButton.onclick = function () {
-            let widthElement = document.getElementById("width-modal")
-            let heightElement = document.getElementById("height-modal")
-            console.log('creating new matrix with ' + widthElement.value + 'x' + heightElement.value)
-            //todo implement
+        matrixIdCounter -= matricesToRemove.length;
+        for (let i = 0; i < matricesToRemove.length; i++) {
+            let id = matricesToRemove[i]
+            for (let j = 0; j < state.matrices.length; j++) {
+                let matrix = state.matrices[j]
+                removeItem(matrix.linkedMatricesIds, id);
+                if (matrix.matrixId === id) {
+                    removeItem(state.matrices, matrix);
+                }
+            }
         }
 
+        rerender();
+    })
+
+
+    //add matrix buttons logic (modal windows)
+    let modal = document.getElementById("addMatrixButtonModal");
+
+    window.onclick = function (event) {
+        if (event.target === modal) {
+            modal.style.display = "none";
+            modal.removeAttribute('original_matrix_id')
+        }
+    }
+
+    let span = document.getElementsByClassName("close-addMatrix-modal")[0];
+    span.onclick = function () {
+        modal.style.display = "none";
+        modal.removeAttribute('original_matrix_id')
+    }
+
+    let buttons = document.getElementsByClassName("btn-sm");
+    for (let i = 0; i < buttons.length; i++) {
+        let addMatrixButton = buttons.item(i)
+        addMatrixButton.onclick = function () {
+            modal.style.display = "block";
+            modal.setAttribute('original_matrix_id', this.parentElement.getElementsByTagName('table')[0].id)
+        }
+    }
+
+    let confirmButton = document.getElementById("modal-confirm-button");
+    confirmButton.onclick = function () {
+        let widthElement = document.getElementById("width-modal")
+        let heightElement = document.getElementById("height-modal")
+
+        if (widthElement.value && heightElement.value) {
+            let width = parseFloat(widthElement.value)
+            let height = parseFloat(heightElement.value)
+            if (Number.isInteger(width) && Number.isInteger(height)) {
+                if (width <= 0 || width > 6 ||
+                    height <= 0 || height > 6) {
+                    alert('Ширина и высота должны быть положительными числами не превосходящими размеров исходной матрицы');
+                } else {
+                    console.log('creating new matrix with ' + width + 'x' + height)
+                    let newId = 'id-' + (matrixIdCounter++);
+
+                    //todo probably need to recalculate matrixes ids
+                    state.matrices.push(
+                        {
+                            matrixId: newId,
+                            slideNumber: state.currentSlideNumber + 1,
+                            matrixValue: emptyMatrixWithSize(height, width),
+                            linkedMatricesIds: []
+                        }
+                    );
+
+                    let originalMatrixId = modal.getAttribute('original_matrix_id')
+                    for (let j = 0; j < state.matrices.length; j++) {
+                        if (state.matrices[j].matrixId === originalMatrixId) {
+                            state.matrices[j].linkedMatricesIds.push(newId);
+                            break;
+                        }
+                    }
+                    state.currentSlideIsEmpty = false;
+
+                    rerender()
+                }
+            } else {
+                alert('Ширина и высота должны быть целыми числами');
+            }
+        } else {
+            alert('Введите, пожалуйста, ширину и высоту новой матрицы');
+        }
     }
 }
 
@@ -315,6 +452,8 @@ function init_lab() {
         },
 
         init: function () {
+            matrixIdCounter = 0;
+
             let variantJSON = document.getElementById("preGeneratedCode")
             if (variantJSON) {
                 if (variantJSON.value !== "") {
@@ -332,7 +471,7 @@ function init_lab() {
                         //fill global state
                         return {
                             matrices: [
-                                //first matrix of first slide
+                                //input matrix
                                 {
                                     matrixId: 'id-' + (matrixIdCounter++),
                                     slideNumber: 0,

@@ -2,6 +2,7 @@ package vlab.server_java.model;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Arrays;
 import java.util.Random;
 
 public class Matrix {
@@ -20,8 +21,8 @@ public class Matrix {
         double[][] result = new double[size][size];
         for (int i = 0; i < size; ++i) {
             for (int j = 0; j < size; j++) {
-                double value = (random.nextDouble() * 2) - 1; //-1..1
-                result[i][j] = round(value, 1);
+                double value = random.nextDouble(); //[0..1)
+                result[i][j] = round(value, 2);
             }
         }
 
@@ -41,5 +42,18 @@ public class Matrix {
 
     public void setMatrix(double[][] matrix) {
         this.matrix = matrix;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Matrix matrix1 = (Matrix) o;
+        return Arrays.deepEquals(matrix, matrix1.matrix);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.deepHashCode(matrix);
     }
 }
