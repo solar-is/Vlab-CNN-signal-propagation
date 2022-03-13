@@ -140,7 +140,7 @@ function getHTML() {
         }
         return result;
     }
-    
+
     let leftSideMatrices = [];
     let rightSideMatrices = [];
     for (let i = 0; i < state.matrices.length; i++) {
@@ -183,6 +183,21 @@ function getHTML() {
                         ${getSlidePartHTML(rightSideMatrices, "right-side-matrix")}
                     </div>
                 </div>
+                
+                <div id="addMatrixButtonModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <span class="close-modal">&times;</span>
+                            <h2>Добавить новую таблицу</h2>
+                        </div>
+                        <div class="modal-body">
+                            <input id="width-modal" type="number" value="1" placeholder="Ширина"/>
+                            <input id="height-modal" type="number" value="1" placeholder="Высота"/>
+                            <input id="modal-confirm-button" type="button" value="Добавить">
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="footer-begin-line"></div>
                 <div class="footer">
                     <div class="next-prev-buttons">
@@ -237,7 +252,8 @@ function bindActionListeners() {
     document.getElementById("prevButton").addEventListener('click', () => {
         updateState((state) => {
             return {
-                ...state
+                ...state,
+                currentSlideNumber: state.currentSlideNumber - 1
             }
         });
         rerender();
@@ -246,7 +262,8 @@ function bindActionListeners() {
     document.getElementById("nextButton").addEventListener('click', () => {
         updateState((state) => {
             return {
-                ...state
+                ...state,
+                currentSlideNumber: state.currentSlideNumber + 1
             }
         });
         rerender();
@@ -254,7 +271,38 @@ function bindActionListeners() {
 
     //clear button
 
-    //add matrix button
+    var buttons = document.getElementsByClassName("btn-sm");
+    for (let i = 0; i < buttons.length; i++) {
+        let modal = document.getElementById("addMatrixButtonModal");
+        let clearButton = buttons.item(i)
+        let span = document.getElementsByClassName("close-modal")[0];
+
+        // When the user clicks the button, open the modal
+        clearButton.onclick = function () {
+            modal.style.display = "block";
+        }
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function (event) {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        let confirmButton = document.getElementById("modal-confirm-button");
+        confirmButton.onclick = function () {
+            let widthElement = document.getElementById("width-modal")
+            let heightElement = document.getElementById("height-modal")
+            console.log('creating new matrix with ' + widthElement.value + 'x' + heightElement.value)
+            //todo implement
+        }
+
+    }
 }
 
 function init_lab() {
