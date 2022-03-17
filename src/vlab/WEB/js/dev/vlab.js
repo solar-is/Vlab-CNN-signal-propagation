@@ -335,10 +335,10 @@ function bindActionListeners() {
         rerender();
     });
 
-    function removeItem(array, item){
-        for(let i in array){
-            if(array[i] === item){
-                array.splice(i,1);
+    function removeItem(array, item) {
+        for (let i in array) {
+            if (array[i] === item) {
+                array.splice(i, 1);
                 break;
             }
         }
@@ -410,8 +410,10 @@ function bindActionListeners() {
                     alert('Ширина и высота должны быть положительными числами не превосходящими размеров исходной матрицы');
                 } else {
                     console.log('creating new matrix with ' + width + 'x' + height)
-                    let newId = 'id-' + (matrixIdCounter++);
 
+                    let oldState = JSON.parse(JSON.stringify(state));
+
+                    let newId = 'id-' + (matrixIdCounter++);
                     //todo probably need to recalculate matrixes ids
                     state.matrices.push(
                         {
@@ -432,6 +434,14 @@ function bindActionListeners() {
                     state.currentSlideIsEmpty = false;
 
                     rerender()
+
+                    if (checkOverflow(document.getElementById("slide-right-part"))) {
+                        //show message and revert to old state
+                        alert('Невозможно создать матрицу с заданным размером на текущем слое');
+                        state = oldState
+                        matrixIdCounter--
+                        rerender()
+                    }
                 }
             } else {
                 alert('Ширина и высота должны быть целыми числами');
@@ -440,6 +450,26 @@ function bindActionListeners() {
             alert('Введите, пожалуйста, ширину и высоту новой матрицы');
         }
     }
+
+    document.getElementById("slide-right-part").addEventListener("scroll", () => {
+        //redraw lines between matrices
+        for (let i = 0; i < lines.length; i++) {
+            lines[i].position()
+        }
+    })
+}
+
+function checkOverflow(element) {
+    var curOverf = element.style.overflow;
+
+    if ( !curOverf || curOverf === "visible" )
+        element.style.overflow = "hidden";
+
+    var isOverflowing = element.clientWidth < element.scrollWidth
+        || element.clientHeight < element.scrollHeight;
+
+    element.style.overflow = curOverf;
+    return isOverflowing;
 }
 
 function init_lab() {
