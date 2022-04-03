@@ -42,6 +42,7 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
             Solution ourSolution = new Solution(generatedVariant);
 
             //compare ourSolution and studentSolution
+            //todo rework
             points = compareMSE(studentSolution, ourSolution, commentBuilder, points);
             points = compareMatricesCount(studentSolution, ourSolution, commentBuilder, points);
             points = compareMatricesValues(studentSolution, ourSolution, commentBuilder, points);
