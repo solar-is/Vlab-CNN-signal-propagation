@@ -38,7 +38,7 @@ public class Solution {
                 .filter(node -> node.getNextNodes() == null) //output neurons
                 .mapToDouble(node -> node.getPayload().getMatrix()[0][0])
                 .map(operand -> {
-                    //calculating MSE as ('output' - 'output*')^2, where 'output*'=1 for 'output'>0.5 and 'output*'=0 otherwise
+                    //calculating MSE as sum of ('output' - 'output*')^2, where 'output*'=1 for 'output'>0.5 and 'output*'=0 otherwise
                     if (Double.compare(operand, 0.5) > 0) {
                         return Math.pow(operand - 1, 2);
                     } else {
@@ -157,8 +157,8 @@ public class Solution {
     private double calculateSubSamplingFor(double[][] matrix, int i, int j, String subSamplingFunction) {
         List<Double> interestedNumbers = new ArrayList<>();
 
-        for (int k = i * 2; k < i + 2; k++) {
-            for (int l = j * 2; l < j + 2; l++) {
+        for (int k = i * 2; k < i * 2 + 2; k++) {
+            for (int l = j * 2; l < j * 2 + 2; l++) {
                 interestedNumbers.add(matrix[k][l]);
             }
         }
