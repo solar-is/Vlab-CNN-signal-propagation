@@ -210,7 +210,7 @@ function getHTML() {
                     ${getKernelsHTML()}
                     <span class="activation-func-caption">Функция активации:</span>
                     <span class="activation-func-value">${generatedVariant.activationFunction}</span>
-                    <span class="subsampling-func-caption">Функция подвыбоки:</span>
+                    <span class="subsampling-func-caption">Функция подвыборки:</span>
                     <span class="subsampling-func-value">${generatedVariant.subSamplingFunction}</span>
                     <button type="button" class="btn btn-info showReference" data-toggle="modal" data-target="#exampleModalScrollable">Справка</button>
                 </div>

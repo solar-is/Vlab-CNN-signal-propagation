@@ -157,8 +157,8 @@ public class Solution {
     private double calculateSubSamplingFor(double[][] matrix, int i, int j, String subSamplingFunction) {
         List<Double> interestedNumbers = new ArrayList<>();
 
-        for (int k = i; k < i + 2; k++) {
-            for (int l = j; l < j + 2; l++) {
+        for (int k = i * 2; k < i + 2; k++) {
+            for (int l = j * 2; l < j + 2; l++) {
                 interestedNumbers.add(matrix[k][l]);
             }
         }
