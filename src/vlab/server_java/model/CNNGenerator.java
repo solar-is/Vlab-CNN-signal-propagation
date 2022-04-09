@@ -15,9 +15,12 @@ public class CNNGenerator {
     private static final List<String> POSSIBLE_ACTIVATION_FUNCTIONS = Arrays.asList("ReLU", "Linear");
     private static final List<String> POSSIBLE_SUBSAMPLING_FUNCTIONS = Arrays.asList("Max", "Avg");
     private static final List<Matrix> POSSIBLE_CONVOLUTION_KERNELS = Arrays.asList(
-            new Matrix(new double[][]{{1, 1}, {1, 1}}),
+            new Matrix(new double[][]{{0, 1}, {1, 0}}),
             new Matrix(new double[][]{{0, 1}, {-1, 0}}),
+            new Matrix(new double[][]{{0, -1}, {1, 0}}),
+            new Matrix(new double[][]{{0, -1}, {-1, 0}}),
             new Matrix(new double[][]{{1, 0}, {0, 1}}),
+            new Matrix(new double[][]{{-1, 0}, {0, -1}}),
             new Matrix(new double[][]{{1, -1}, {-1, 1}})
     );
 
@@ -29,8 +32,7 @@ public class CNNGenerator {
     private static final Random RANDOM = new Random();
 
     public CNNGenerator() {
-        this.inputMatrixSize = DEFAULT_INPUT_MATRIX_SIZE;
-        this.convKernelsCnt = DEFAULT_CONVOLUTION_KERNELS_CNT;
+        this(DEFAULT_INPUT_MATRIX_SIZE, DEFAULT_CONVOLUTION_KERNELS_CNT);
     }
 
     public CNNGenerator(int inputMatrixSize, int convKernelsCnt) {
@@ -63,5 +65,4 @@ public class CNNGenerator {
         }
         return kernels;
     }
-
 }

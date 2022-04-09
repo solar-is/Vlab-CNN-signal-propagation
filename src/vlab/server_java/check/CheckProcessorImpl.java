@@ -19,7 +19,6 @@ import static java.math.BigDecimal.valueOf;
  * Simple CheckProcessor implementation. Supposed to be changed as needed to provide
  * necessary Check method support.
  */
-
 public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<String> {
     private static final double MSE_EPS = 0.01;
     private static final double MATRIX_VALUE_EPS = 0.01;
@@ -42,7 +41,7 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
             Solution ourSolution = new Solution(generatedVariant);
 
             //compare ourSolution and studentSolution
-            //todo rework
+            //todo change checking strategy to fail-fast
             points = compareMSE(studentSolution, ourSolution, commentBuilder, points);
             points = compareMatricesCount(studentSolution, ourSolution, commentBuilder, points);
             points = compareMatricesValues(studentSolution, ourSolution, commentBuilder, points);

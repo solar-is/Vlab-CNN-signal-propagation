@@ -27,8 +27,9 @@ public class Solution {
     public Solution(@Nonnull Variant generatedVariant) {
         List<MatrixNetNode> calculatedNodes = new ArrayList<>();
 
-        //queue is using to process nodes in ascending order, first layer is always convolution one
+        //queue is using to process nodes in ascending order
         Queue<Pair<MatrixNetNode, LayerType>> queue = new ArrayDeque<>();
+        //first layer is always convolution one
         queue.offer(new Pair<>(generatedVariant.inputNode, LayerType.CONVOLUTION));
 
         fillResultWithNodes(generatedVariant.activationFunction, generatedVariant.subSamplingFunction, generatedVariant.kernels, queue, calculatedNodes);
@@ -46,8 +47,10 @@ public class Solution {
                     }
                 })
                 .sum();
+        long outputNeuronsCount = calculatedNodes.stream().filter(node -> node.getNextNodes() == null).count();
+
         //rounded to 2 decimals
-        this.mse = BigDecimal.valueOf(mseSum / calculatedNodes.stream().filter(node -> node.getNextNodes() == null).count())
+        this.mse = BigDecimal.valueOf(mseSum / outputNeuronsCount)
                 .setScale(2, RoundingMode.HALF_UP)
                 .doubleValue();
 
@@ -57,6 +60,7 @@ public class Solution {
 
         int matrixIdCounter = 0;
         for (MatrixNetNode nodeToConvert : calculatedNodes) {
+            //todo fix ugly generating ids
             String id = "id-" + matrixIdCounter++;
 
             double[][] matrix = nodeToConvert.getPayload().getMatrix();
@@ -94,11 +98,11 @@ public class Solution {
     }
 
 
-    private void fillResultWithNodes(String activationFunction,
-                                     String subSamplingFunction,
-                                     List<Matrix> kernels,
-                                     Queue<Pair<MatrixNetNode, LayerType>> queue,
-                                     List<MatrixNetNode> result) {
+    private void fillResultWithNodes(@Nonnull String activationFunction,
+                                     @Nonnull String subSamplingFunction,
+                                     @Nonnull List<Matrix> kernels,
+                                     @Nonnull Queue<Pair<MatrixNetNode, LayerType>> queue,
+                                     @Nonnull List<MatrixNetNode> result) {
         while (!queue.isEmpty()) {
             Pair<MatrixNetNode, LayerType> nodeToProcess = queue.poll();
             MatrixNetNode currentNode = nodeToProcess.getKey();

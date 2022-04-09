@@ -398,6 +398,7 @@ function bindActionListeners() {
 
     let confirmButton = document.getElementById("modal-confirm-button");
     confirmButton.onclick = function () {
+        //todo prohibit cross linking matrices creation
         let widthElement = document.getElementById("width-modal")
         let heightElement = document.getElementById("height-modal")
 
@@ -414,7 +415,6 @@ function bindActionListeners() {
                     let oldState = JSON.parse(JSON.stringify(state));
 
                     let newId = 'id-' + (matrixIdCounter++);
-                    //todo probably need to recalculate matrixes ids
                     state.matrices.push(
                         {
                             matrixId: newId,
@@ -424,6 +424,7 @@ function bindActionListeners() {
                         }
                     );
 
+                    //add link to new matrix from original one
                     let originalMatrixId = modal.getAttribute('original_matrix_id')
                     for (let j = 0; j < state.matrices.length; j++) {
                         if (state.matrices[j].matrixId === originalMatrixId) {
@@ -460,16 +461,13 @@ function bindActionListeners() {
 }
 
 function checkOverflow(element) {
-    var curOverf = element.style.overflow;
-
-    if ( !curOverf || curOverf === "visible" )
+    const curOverflow = element.style.overflow;
+    if ( !curOverflow || curOverflow === "visible" ) {
         element.style.overflow = "hidden";
-
-    var isOverflowing = element.clientWidth < element.scrollWidth
+    }
+    element.style.overflow = curOverflow;
+    return element.clientWidth < element.scrollWidth
         || element.clientHeight < element.scrollHeight;
-
-    element.style.overflow = curOverf;
-    return isOverflowing;
 }
 
 function init_lab() {
@@ -482,8 +480,6 @@ function init_lab() {
         },
 
         init: function () {
-            matrixIdCounter = 0;
-
             let variantJSON = document.getElementById("preGeneratedCode")
             if (variantJSON) {
                 if (variantJSON.value !== "") {
@@ -503,7 +499,7 @@ function init_lab() {
                             matrices: [
                                 //input matrix
                                 {
-                                    matrixId: 'id-' + (matrixIdCounter++),
+                                    matrixId: 'id-' + (matrixIdCounter++), //matrixIdCounter is equal to 1
                                     slideNumber: 0,
                                     matrixValue: generatedVariant.inputMatrix,
                                     linkedMatricesIds: []
