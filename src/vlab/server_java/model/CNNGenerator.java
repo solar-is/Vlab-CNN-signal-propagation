@@ -11,7 +11,6 @@ import java.util.Random;
  */
 public class CNNGenerator {
     public static final CNNGenerator DEFAULT = new CNNGenerator();
-
     private static final List<String> POSSIBLE_ACTIVATION_FUNCTIONS = Arrays.asList("ReLU", "Linear");
     private static final List<String> POSSIBLE_SUBSAMPLING_FUNCTIONS = Arrays.asList("Max", "Avg");
     private static final List<Matrix> POSSIBLE_CONVOLUTION_KERNELS = Arrays.asList(

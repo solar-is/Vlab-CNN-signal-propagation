@@ -10,6 +10,7 @@ import vlab.server_java.model.solutionchecking.MatrixAnswer;
 import vlab.server_java.model.solutionchecking.Solution;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -17,13 +18,12 @@ import java.util.Optional;
  * necessary Check method support.
  */
 public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<String> {
-    private static final double SINGLE_VALID_MATRIX_POINTS = 7.0;
+    private static final double[] VALID_MATRIX_POINTS = {15.0, 15.0, 9.0, 9.0, 6.0, 6.0, 6.0, 6.0, 3.0, 3.0, 3.0, 3.0};
     private static final double MSE_VALID_POINTS = 16.0;
     private static final double COMPARISON_EPS = 0.01;
 
     @Override
     public CheckingSingleConditionResult checkSingleCondition(ConditionForChecking condition, String instructions, GeneratingResult generatingResult) {
-        // TODO: 21.04.2022  add test!
         System.out.println("instructions in checkProcessor" + instructions);
 
         double points = 0.0;
@@ -36,7 +36,9 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
             Solution ourSolution = new Solution(generatedVariant);
 
             //compare ourSolution and studentSolution from the very beginning to the end
-            for (MatrixAnswer studentMatrix : studentSolution.matrices) {
+            List<MatrixAnswer> matrices = studentSolution.matrices;
+            for (int k = 0; k < matrices.size(); k++) {
+                MatrixAnswer studentMatrix = matrices.get(k);
                 Optional<MatrixAnswer> ourMatrixOptional = ourSolution.matrices
                         .stream()
                         .filter(ourMatrix -> ourMatrix.matrixId.equals(studentMatrix.matrixId))
@@ -64,11 +66,11 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
                                 }
                             }
                         }
-                        points += SINGLE_VALID_MATRIX_POINTS;
+                        points += VALID_MATRIX_POINTS[k];
                     }
                 } else {
-                    commentBuilder.append("qwe");
-                    break;
+                    //should not happen
+                    throw new IllegalStateException("Can't find matching matrix for matrix with id=" + studentMatrix.matrixId);
                 }
             }
 
@@ -83,8 +85,8 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
         }
 
         return new CheckingSingleConditionResult(
-                Double.compare(points, 0.0) > 0
-                        ? BigDecimal.valueOf(points) : BigDecimal.valueOf(0.0),
+                Double.compare(points, 1.0) > 0
+                        ? BigDecimal.valueOf(1.0) : BigDecimal.valueOf(points),
                 commentBuilder.toString()
         );
     }
