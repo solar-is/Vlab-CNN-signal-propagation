@@ -38,7 +38,6 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:test-java-server-config.xml")
-//@ContextConfiguration("classpath:test-js-server-config.xml")
 public class ServerFilesTests {
 
     @Autowired

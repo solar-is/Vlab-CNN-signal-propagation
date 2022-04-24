@@ -34,7 +34,6 @@ import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:test-java-server-config.xml")
-//@ContextConfiguration("classpath:test-js-server-config.xml")
 public class ServerBeansTests {
 
     @Autowired

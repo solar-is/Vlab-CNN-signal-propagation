@@ -6,7 +6,6 @@
        <import resource="classpath:vlab/server_java/java-server-config.xml"/>
        <import resource="var/bean/*.xml"/>
 
-
        <bean id="url" class="java.lang.String">
               <constructor-arg value="rlcp://user:user@127.0.0.1:3000"/>
        </bean>

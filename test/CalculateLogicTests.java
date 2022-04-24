@@ -18,9 +18,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:test-*-server-config.xml")
+@ContextConfiguration("classpath:test-java-server-config.xml")
 @ActiveProfiles(profiles = "java")
-//@ActiveProfiles(profiles = "js")
 public class CalculateLogicTests {
 
     @Autowired

@@ -1,1 +1,1 @@
-# RLCP Virtual laboratory about CNN-signal-propagation
+# RLCP-compatible VL for learning of CNN forward signal propagation algorithm
