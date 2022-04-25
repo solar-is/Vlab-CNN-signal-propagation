@@ -39,7 +39,7 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
             int studentSolutionMatricesSize = studentSolution.matrices.size();
 
             boolean shouldContinue = true;
-            for (int k = 1; k < ourSolutionMatricesSize && shouldContinue; k++) { //skip first matrix
+            for (int k = 1; k < ourSolutionMatricesSize; k++) { //skip first matrix
                 MatrixAnswer ourMatrix = ourSolution.matrices.get(k);
                 Optional<MatrixAnswer> studentMatrixOptional = studentSolution.matrices
                         .stream()
