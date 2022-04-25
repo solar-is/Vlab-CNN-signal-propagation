@@ -26,14 +26,64 @@ public class Solution {
 
     public Solution(@Nonnull Variant generatedVariant) {
         List<MatrixNetNode> calculatedNodes = new ArrayList<>();
+        calculateNodes(generatedVariant, calculatedNodes);
 
-        //queue is using to process nodes in ascending order
-        Queue<Pair<MatrixNetNode, LayerType>> queue = new ArrayDeque<>();
-        //first layer is always convolution one
-        queue.offer(new Pair<>(generatedVariant.inputNode, LayerType.CONVOLUTION));
+        //set fields
+        calculateMseValue(calculatedNodes);
+        calculateMatrices(calculatedNodes);
+    }
 
-        fillResultWithNodes(generatedVariant.activationFunction, generatedVariant.subSamplingFunction, generatedVariant.kernels, queue, calculatedNodes);
+    private void calculateMatrices(@Nonnull List<MatrixNetNode> calculatedNodes) {
+        //converting to MatrixAnswer's
+        Map<MatrixNetNode, String> idByMatrices = new HashMap<>();
+        Map<String, MatrixAnswer> matricesById = new HashMap<>();
+        assignIdsAndFillMapsWithMatrices(calculatedNodes, idByMatrices, matricesById);
 
+        idByMatrices.forEach((node, id) -> {
+            MatrixAnswer matrixAnswer = matricesById.get(id);
+            List<MatrixNetNode> nextNodes = node.getNextNodes();
+            if (nextNodes != null) {
+                //fill linkedMatricesIds with all needed nodes
+                matrixAnswer.linkedMatricesIds.addAll(
+                        nextNodes
+                                .stream()
+                                .map(idByMatrices::get)
+                                .collect(Collectors.toList())
+                );
+            }
+        });
+
+        this.matrices = matricesById.values().stream().sorted((o1, o2) -> {
+            //compare by id, ascending
+            String matrixId1 = o1.matrixId;
+            String matrixId2 = o2.matrixId;
+            Integer integer1 = Integer.valueOf(matrixId1.substring(matrixId1.indexOf('-') + 1));
+            Integer integer2 = Integer.valueOf(matrixId2.substring(matrixId2.indexOf('-') + 1));
+            return integer1.compareTo(integer2);
+        }).collect(Collectors.toList());
+    }
+
+    private void assignIdsAndFillMapsWithMatrices(@Nonnull List<MatrixNetNode> calculatedNodes,
+                                                  @Nonnull Map<MatrixNetNode, String> idByMatrices,
+                                                  @Nonnull Map<String, MatrixAnswer> matricesById) {
+        int matrixIdCounter = 0;
+        for (MatrixNetNode nodeToConvert : calculatedNodes) {
+            //generate id
+            String id = "id-" + matrixIdCounter++;
+            MatrixAnswer matrixAnswer = new MatrixAnswer(
+                    id,
+                    nodeToConvert.getLayerNumber(),
+                    nodeToConvert.getPayload().getMatrix(),
+                    new ArrayList<>()
+            );
+
+            //fill map
+            idByMatrices.put(nodeToConvert, id);
+            matricesById.put(id, matrixAnswer);
+        }
+    }
+
+    private void calculateMseValue(@Nonnull List<MatrixNetNode> calculatedNodes) {
         double mseSum = calculatedNodes
                 .stream()
                 .filter(node -> node.getNextNodes() == null) //output neurons
@@ -53,48 +103,14 @@ public class Solution {
         this.mse = BigDecimal.valueOf(mseSum / outputNeuronsCount)
                 .setScale(2, RoundingMode.HALF_UP)
                 .doubleValue();
+    }
 
-        //converting to MatrixAnswer's
-        Map<MatrixNetNode, String> originalObjectsToId = new HashMap<>();
-        Map<String, MatrixAnswer> convertedObjectsById = new HashMap<>();
-
-        int matrixIdCounter = 0;
-        for (MatrixNetNode nodeToConvert : calculatedNodes) {
-            //todo fix ugly generating ids
-            String id = "id-" + matrixIdCounter++;
-
-            double[][] matrix = nodeToConvert.getPayload().getMatrix();
-            int layerNumber = nodeToConvert.getLayerNumber();
-
-            MatrixAnswer matrixAnswer = new MatrixAnswer(id, layerNumber, matrix, new ArrayList<>());
-
-            originalObjectsToId.put(nodeToConvert, id);
-            convertedObjectsById.put(id, matrixAnswer);
-        }
-
-        originalObjectsToId.forEach((node, id) -> {
-            MatrixAnswer matrixAnswer = convertedObjectsById.get(id);
-
-            List<MatrixNetNode> nextNodes = node.getNextNodes();
-
-            if (nextNodes != null) {
-                matrixAnswer.linkedMatricesIds.addAll(
-                        nextNodes
-                                .stream()
-                                .map(originalObjectsToId::get)
-                                .collect(Collectors.toList())
-                );
-            }
-        });
-
-        this.matrices = convertedObjectsById.values().stream().sorted((o1, o2) -> {
-            //compare by id end integer
-            String matrixId1 = o1.matrixId;
-            String matrixId2 = o2.matrixId;
-            Integer integer1 = Integer.valueOf(matrixId1.substring(matrixId1.indexOf('-') + 1));
-            Integer integer2 = Integer.valueOf(matrixId2.substring(matrixId2.indexOf('-') + 1));
-            return integer1.compareTo(integer2);
-        }).collect(Collectors.toList());
+    private void calculateNodes(@Nonnull Variant generatedVariant, @Nonnull List<MatrixNetNode> calculatedNodes) {
+        //queue is using to process nodes in ascending order
+        Queue<Pair<MatrixNetNode, LayerType>> queue = new ArrayDeque<>();
+        //first layer is always convolution one
+        queue.offer(new Pair<>(generatedVariant.inputNode, LayerType.CONVOLUTION));
+        fillResultWithNodes(generatedVariant.activationFunction, generatedVariant.subSamplingFunction, generatedVariant.kernels, queue, calculatedNodes);
     }
 
 
@@ -139,7 +155,7 @@ public class Solution {
         }
     }
 
-    private Matrix doSubSamplingFor(double[][] matrix, String subSamplingFunction) {
+    private Matrix doSubSamplingFor(double[][] matrix, @Nonnull String subSamplingFunction) {
         if (matrix.length % 2 != 0 ||
                 matrix[0].length % 2 != 0) {
             throw new IllegalArgumentException("Trying to perform subsampling for matrix with non divisible sizes (not even)");
@@ -158,7 +174,7 @@ public class Solution {
     }
 
     @SuppressWarnings({"OptionalGetWithoutIsPresent"})
-    private double calculateSubSamplingFor(double[][] matrix, int i, int j, String subSamplingFunction) {
+    private double calculateSubSamplingFor(double[][] matrix, int i, int j, @Nonnull String subSamplingFunction) {
         List<Double> interestedNumbers = new ArrayList<>();
 
         for (int k = i * 2; k < i * 2 + 2; k++) {
@@ -167,16 +183,16 @@ public class Solution {
             }
         }
 
-        if (subSamplingFunction.equals("Avg")) {
+        if ("Avg".equals(subSamplingFunction)) {
             return interestedNumbers.stream().mapToDouble(d -> d).average().getAsDouble();
-        } else if (subSamplingFunction.equals("Max")) {
+        } else if ("Max".equals(subSamplingFunction)) {
             return interestedNumbers.stream().mapToDouble(d -> d).max().getAsDouble();
         } else {
             throw new IllegalArgumentException("Unrecognized subSampling function: " + subSamplingFunction);
         }
     }
 
-    private List<Matrix> doConvolutionFor(double[][] matrix, List<Matrix> kernels, String activationFunction) {
+    private List<Matrix> doConvolutionFor(double[][] matrix, @Nonnull List<Matrix> kernels, @Nonnull String activationFunction) {
         List<Matrix> result = new ArrayList<>();
         for (Matrix kernel : kernels) {
             double[][] kernelMatrix = kernel.getMatrix();
@@ -195,7 +211,7 @@ public class Solution {
         return result;
     }
 
-    private double calculateConvolutionFor(double[][] matrix, double[][] kernelMatrix, int i, int j, String activationFunction) {
+    private double calculateConvolutionFor(double[][] matrix, double[][] kernelMatrix, int i, int j, @Nonnull String activationFunction) {
         double res = 0.;
         for (int k = i; k < i + kernelMatrix.length; k++) {
             for (int l = j; l < j + kernelMatrix[0].length; l++) {
@@ -205,14 +221,14 @@ public class Solution {
         return roundAndApplyActivationFunctionFor(res, activationFunction);
     }
 
-    private double roundAndApplyActivationFunctionFor(double convolutionResult, String activationFunction) {
+    private double roundAndApplyActivationFunctionFor(double convolutionResult, @Nonnull String activationFunction) {
         convolutionResult = BigDecimal.valueOf(convolutionResult)
                 .setScale(2, RoundingMode.HALF_UP)
                 .doubleValue();
 
-        if (activationFunction.equals("Linear")) {
+        if ("Linear".equals(activationFunction)) {
             return convolutionResult;
-        } else if (activationFunction.equals("ReLU")) {
+        } else if ("ReLU".equals(activationFunction)) {
             return Math.max(0.0, convolutionResult);
         } else {
             throw new IllegalArgumentException("Unrecognized activation function: " + activationFunction);

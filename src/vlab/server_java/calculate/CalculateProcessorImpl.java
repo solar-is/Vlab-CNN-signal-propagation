@@ -13,7 +13,6 @@ public class CalculateProcessorImpl implements CalculateProcessor {
         //do calculate logic here
         String text = "text";
         String code = "code";
-
         return new CalculatingResult(text, code);
     }
 }
