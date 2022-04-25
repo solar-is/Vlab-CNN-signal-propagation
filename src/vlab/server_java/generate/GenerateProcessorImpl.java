@@ -50,6 +50,7 @@ public class GenerateProcessorImpl implements GenerateProcessor {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new GeneratingResult("text from generateProcessor", generatedVariantInJson, "instructions from generateProcessor");
+        return new GeneratingResult("Найдите значение сигнала на каждом слое сети и посчитайте MSE на выходном слое",
+                generatedVariantInJson, "instructions from generateProcessor");
     }
 }

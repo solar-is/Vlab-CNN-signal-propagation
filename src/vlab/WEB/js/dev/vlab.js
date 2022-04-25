@@ -398,9 +398,27 @@ function bindActionListeners() {
 
     let confirmButton = document.getElementById("modal-confirm-button");
     confirmButton.onclick = function () {
-        //todo prohibit cross linking matrices creation
         let widthElement = document.getElementById("width-modal")
         let heightElement = document.getElementById("height-modal")
+
+        function extractMatrixId(matrixId) {
+            return parseInt(matrixId.toString().substring(3)); // skip "id-" and convert to integer
+        }
+
+        function crossLinkingMatrixCreationAttempt(originalMatrixId) {
+            let origMatrixId = extractMatrixId(originalMatrixId)
+
+            for (let i = 0; i < state.matrices.length; i++) {
+                let curMatrix = state.matrices[i]
+                if (curMatrix.slideNumber === state.currentSlideNumber &&
+                        extractMatrixId(curMatrix.matrixId) > origMatrixId) {
+                    if (curMatrix.linkedMatricesIds.length > 0) {
+                        return true
+                    }
+                }
+            }
+            return false;
+        }
 
         if (widthElement.value && heightElement.value) {
             let width = parseFloat(widthElement.value)
@@ -410,22 +428,26 @@ function bindActionListeners() {
                     height <= 0 || height > 6) {
                     alert('Ширина и высота должны быть положительными числами не превосходящими размеров исходной матрицы');
                 } else {
-                    console.log('creating new matrix with ' + width + 'x' + height)
+                    console.log('trying to create new matrix with ' + width + 'x' + height)
+                    let originalMatrixId = modal.getAttribute('original_matrix_id')
+
+                    //prohibit cross-linking matrices creation
+                    if (crossLinkingMatrixCreationAttempt(originalMatrixId)) {
+                        alert("Создавать матрицы с перекрёстными связями запрещено!");
+                        return;
+                    }
 
                     let oldState = JSON.parse(JSON.stringify(state));
-
-                    let newId = 'id-' + (matrixIdCounter++);
-                    state.matrices.push(
-                        {
-                            matrixId: newId,
-                            slideNumber: state.currentSlideNumber + 1,
-                            matrixValue: emptyMatrixWithSize(height, width),
-                            linkedMatricesIds: []
-                        }
-                    );
+                    let newId = "id-" + (matrixIdCounter++);
+                    let newMatrix = {
+                        matrixId: newId,
+                        slideNumber: state.currentSlideNumber + 1,
+                        matrixValue: emptyMatrixWithSize(height, width),
+                        linkedMatricesIds: []
+                    }
+                    state.matrices.push(newMatrix);
 
                     //add link to new matrix from original one
-                    let originalMatrixId = modal.getAttribute('original_matrix_id')
                     for (let j = 0; j < state.matrices.length; j++) {
                         if (state.matrices[j].matrixId === originalMatrixId) {
                             state.matrices[j].linkedMatricesIds.push(newId);
@@ -499,7 +521,7 @@ function init_lab() {
                             matrices: [
                                 //input matrix
                                 {
-                                    matrixId: 'id-' + (matrixIdCounter++), //matrixIdCounter is equal to 1
+                                    matrixId: "id-" + (matrixIdCounter++), //matrixIdCounter is equal to 1
                                     slideNumber: 0,
                                     matrixValue: generatedVariant.inputMatrix,
                                     linkedMatricesIds: []
