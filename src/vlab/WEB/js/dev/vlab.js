@@ -10,7 +10,7 @@ let state = {
 
 let lines = [];
 
-//info about generated variant, will be filled only once on initialization
+//info about generated variant, will be filled only once - on initialization
 let generatedVariant = {
     inputMatrix: [],
     kernels: [],
@@ -19,13 +19,13 @@ let generatedVariant = {
 }
 
 function updateState(callback) {
-    console.log("going to update old state", state)
+    console.log("Going to update old state", state)
     state = callback(state);
-    console.log('updatedState', state);
+    console.log('Updated state', state);
     return state;
 }
 
-function linkLeftMatricesToRight(leftSideMatrices) {
+function drawLinesBetweenLeftAndRightMatrices(leftSideMatrices) {
     for (let i = 0; i < leftSideMatrices.length; i++) {
         let matrixElement = leftSideMatrices.item(i);
         let leftMatrixId = matrixElement.id
@@ -51,9 +51,9 @@ function linkLeftMatricesToRight(leftSideMatrices) {
     }
 }
 
-function makeMatricesEditable(matrices) {
-    for (let i = 0; i < matrices.length; i++) {
-        let tableElement = matrices.item(i);
+function makeRightMatricesEditable(rightSideMatrices) {
+    for (let i = 0; i < rightSideMatrices.length; i++) {
+        let tableElement = rightSideMatrices.item(i);
         let matrixId = tableElement.id;
         let tds = tableElement.getElementsByTagName('td');
         let cellsInOneRowCnt = tds.length / tableElement.getElementsByTagName('tr').length;
@@ -122,19 +122,19 @@ function makeMatricesEditable(matrices) {
     }
 }
 
-function rerender() {
-    console.log('going to rerender slide using state', state);
-
+function removeOldLinesBetweenMatrices() {
     for (let i = 0; i < lines.length; i++) {
         lines[i].remove()
     }
     lines.length = 0;
+}
 
+function rerender() {
+    console.log('Going to rerender slide using state', state);
+    removeOldLinesBetweenMatrices();
     document.getElementById('jsLab').innerHTML = getHTML();
-
-    linkLeftMatricesToRight(document.getElementsByClassName('left-side-matrix'));
-    makeMatricesEditable(document.getElementsByClassName('right-side-matrix'));
-
+    drawLinesBetweenLeftAndRightMatrices(document.getElementsByClassName('left-side-matrix'));
+    makeRightMatricesEditable(document.getElementsByClassName('right-side-matrix'));
     bindActionListeners();
 }
 
@@ -274,7 +274,7 @@ function getHTML() {
         </div>`;
 }
 
-function emptyMatrixWithSize(height, width) {
+function createEmptyMatrixWithSize(height, width) {
     let result = [];
     for (let i = 0; i < height; i++) {
         let row = []
@@ -287,7 +287,7 @@ function emptyMatrixWithSize(height, width) {
 }
 
 function bindActionListeners() {
-    //changing of MSE
+    //changing of MSE field value
     document.getElementById("MSE_value").addEventListener('change', () => {
         updateState((state) => {
             if (isNaN(document.getElementById("MSE_value").value)) {
@@ -442,7 +442,7 @@ function bindActionListeners() {
                     let newMatrix = {
                         matrixId: newId,
                         slideNumber: state.currentSlideNumber + 1,
-                        matrixValue: emptyMatrixWithSize(height, width),
+                        matrixValue: createEmptyMatrixWithSize(height, width),
                         linkedMatricesIds: []
                     }
                     state.matrices.push(newMatrix);
@@ -457,6 +457,16 @@ function bindActionListeners() {
                     state.currentSlideIsEmpty = false;
 
                     rerender()
+
+                    function checkOverflow(element) {
+                        const curOverflow = element.style.overflow;
+                        if ( !curOverflow || curOverflow === "visible" ) {
+                            element.style.overflow = "hidden";
+                        }
+                        element.style.overflow = curOverflow;
+                        return element.clientWidth < element.scrollWidth
+                            || element.clientHeight < element.scrollHeight;
+                    }
 
                     if (checkOverflow(document.getElementById("slide-right-part"))) {
                         //show message and revert to old state
@@ -480,16 +490,6 @@ function bindActionListeners() {
             lines[i].position()
         }
     })
-}
-
-function checkOverflow(element) {
-    const curOverflow = element.style.overflow;
-    if ( !curOverflow || curOverflow === "visible" ) {
-        element.style.overflow = "hidden";
-    }
-    element.style.overflow = curOverflow;
-    return element.clientWidth < element.scrollWidth
-        || element.clientHeight < element.scrollHeight;
 }
 
 function init_lab() {
