@@ -88,7 +88,7 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
                 if (Double.compare(mseDiff, COMPARISON_EPS) > 0) {
                     commentBuilder.append("MSE отличается от правильного (").append(ourSolution.mse).append(") больше чем на ").append(COMPARISON_EPS);
                 } else {
-                    points += MSE_VALID_POINTS;
+                    points = MAX_POINTS; //points += MSE_VALID_POINTS
                 }
             }
         } catch (Exception e) {
