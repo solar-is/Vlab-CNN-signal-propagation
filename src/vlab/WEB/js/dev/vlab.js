@@ -201,6 +201,14 @@ function getHTML() {
         }
     }
 
+    function getActivationFunction(activationFunction) {
+        if (activationFunction === 'Linear') {
+            return "Линейная"
+        } else if (activationFunction === 'ReLU') {
+            return "RELU"
+        }
+    }
+
     return `
         <div class="lab">
             <div class="lab-table">
@@ -209,7 +217,7 @@ function getHTML() {
                     <span class="kernel-caption">Ядра свёртки:</span>
                     ${getKernelsHTML()}
                     <span class="activation-func-caption">Функция активации:</span>
-                    <span class="activation-func-value">${generatedVariant.activationFunction}</span>
+                    <span class="activation-func-value">${getActivationFunction(generatedVariant.activationFunction)}</span>
                     <span class="subsampling-func-caption">Функция подвыборки:</span>
                     <span class="subsampling-func-value">${generatedVariant.subSamplingFunction}</span>
                     <button type="button" class="btn btn-info showReference" data-toggle="modal" data-target="#exampleModalScrollable">Справка</button>
@@ -265,9 +273,9 @@ function getHTML() {
                           <div class="modal-body">                                                                             
                                 <p>Используя указанные ядра свёртки, функцию активации, функцию подвыборки, рассчитайте значения нейронов на каждом слое сети.</p>
                                 <p>Для создания матрицы на следующем слое сети нажмите на <b>кнопку «+»</b> у оригинальной матрицы, после чего введите ширину и высоту новой матрицы.</p>
+                                <p><b>Внимание!</b> При создании матриц на сверточном слое сети, важен порядок создания матриц - он должен совпадать с порядком следования ядер свертки в варианте задания.</p>
                                 <p>Для редактирования какой-либо ячейки созданной матрицы, нажмите на соответствующую ячейку и введите значение, в качестве разделителя используйте <b>точку</b>.</p>
-                                <p>Если вы хотите удалить созданную матрицу, используйте кнопку <b>«Очистить слой»</b>. 
-                                Будьте осторожны, данное действие удалит все матрицы на следующих слоях сети!</p>
+                                <p>Если вы хотите удалить созданную матрицу, используйте кнопку <b>«Очистить слой»</b>.</p>
                                 <p>Определяя значения сигнала нейрона, используйте <b>округление до второго знака после запятой</b>.</p>
                                 <p>Рассчитайте и введите значение оценки полученного решения MSE после округления до второго знака после запятой. 
                                 После этого нажмите кнопку в правом нижнем углу стенда <b>«Ответ готов»</b>.</p> 
