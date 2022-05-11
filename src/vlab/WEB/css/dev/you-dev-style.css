@@ -88,6 +88,11 @@
 
 #jsLab .modal-body {
     width: 100%;
+    text-align: center;
+}
+
+#jsLab .modal-title {
+    text-align: center;
 }
 
 /* Chrome, Safari, Edge, Opera */

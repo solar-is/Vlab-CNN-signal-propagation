@@ -263,9 +263,14 @@ function getHTML() {
                             </button>
                           </div>
                           <div class="modal-body">                                                                             
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-
-                                <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. <b>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</b></p> 
+                                <p>Используя указанные ядра свёртки, функцию активации, функцию подвыборки, рассчитайте значения нейронов на каждом слое сети.</p>
+                                <p>Для создания матрицы на следующем слое сети нажмите на <b>кнопку «+»</b> у оригинальной матрицы, после чего введите ширину и высоту новой матрицы.</p>
+                                <p>Для редактирования какой-либо ячейки созданной матрицы, нажмите на соответствующую ячейку и введите значение, в качестве разделителя используйте <b>точку</b>.</p>
+                                <p>Если вы хотите удалить созданную матрицу, используйте кнопку <b>«Очистить слой»</b>. 
+                                Будьте осторожны, данное действие удалит все матрицы на следующих слоях сети!</p>
+                                <p>Определяя значения сигнала нейрона, используйте <b>округление до второго знака после запятой</b>.</p>
+                                <p>Рассчитайте и введите значение оценки полученного решения MSE после округления до второго знака после запятой. 
+                                После этого нажмите кнопку в правом нижнем углу стенда <b>«Ответ готов»</b>.</p> 
                           </div>
                         </div>
                       </div>
