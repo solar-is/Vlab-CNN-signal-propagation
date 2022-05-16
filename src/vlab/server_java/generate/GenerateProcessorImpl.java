@@ -46,6 +46,25 @@ public class GenerateProcessorImpl implements GenerateProcessor {
                     "ReLU"
             );*/
 
+            /*variant = new Variant(
+                    new MatrixNetNode(0, null, new Matrix(new double[][]{
+                            {0.15, 0.36, 0., 0.28, 0.57, 0.62, 0.87},
+                            {0.49, 0.84, 0.51, 0.48, 0.64, 0.2, 0.43},
+                            {0.74, 0., 0.75, 0.46, 0.23, 0.52, 0.64},
+                            {0.37, 0.67, 0.62, 0.35, 0.92, 0.68, 0.34},
+                            {0.13, 0.98, 0.26, 0.94, 0.08, 0.42, 0.34},
+                            {0.38, 0.73, 0.17, 0.56, 0.64, 0.89, 0.06},
+                            {0.95, 0.28, 0.39, 0.66, 0.51, 0.4, 0.01}
+                    })),
+                    Arrays.asList(new Matrix(new double[][]{
+                            {1, 0}, {0, 1}
+                    }), new Matrix(new double[][]{
+                            {-1, 0}, {0, -1}
+                    })),
+                    "Max",
+                    "Linear"
+            );*/
+
             generatedVariantInJson = JacksonHelper.toJson(variant);
         } catch (Exception e) {
             e.printStackTrace();

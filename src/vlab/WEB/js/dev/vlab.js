@@ -83,7 +83,31 @@ function makeRightMatricesEditable(rightSideMatrices) {
                 input.onblur = function () {
                     let td = input.parentElement
                     let orig_text = td.getAttribute('data-text')
+
                     let current_text = this.value
+                    if (current_text === '') {
+                        td.removeAttribute('data-clicked')
+                        td.removeAttribute('data-text')
+                        td.innerHTML = orig_text
+                        td.style.cssText = 'padding: 5px'
+                        return;
+                    }
+
+                    let val = parseFloat(current_text);
+                    let dotIdx = current_text.indexOf('.')
+                    let commaIdx = current_text.indexOf(',')
+
+                    if (
+                        ((dotIdx !== -1 || commaIdx !== -1) && val.toString().length > 5) ||
+                        ((dotIdx === -1 && commaIdx === -1) && val.toString().length > 4)
+                    ) {
+                        td.removeAttribute('data-clicked')
+                        td.removeAttribute('data-text')
+                        td.innerHTML = orig_text
+                        td.style.cssText = 'padding: 5px'
+                        alert("Некорректное значение, максимально возможное кол-во знаков - 4")
+                        return;
+                    }
 
                     if (orig_text !== current_text) {
                         let rowVal = td.getAttribute('row_val')
@@ -96,7 +120,7 @@ function makeRightMatricesEditable(rightSideMatrices) {
 
                         for (let k = 0; k < state.matrices.length; k++) {
                             if (state.matrices[k].matrixId === matrixId) {
-                                state.matrices[k].matrixValue[rowVal][columnVal] = parseFloat(current_text);
+                                state.matrices[k].matrixValue[rowVal][columnVal] = val;
                             }
                         }
                     } else {
@@ -424,7 +448,7 @@ function bindActionListeners() {
             for (let i = 0; i < state.matrices.length; i++) {
                 let curMatrix = state.matrices[i]
                 if (curMatrix.slideNumber === state.currentSlideNumber &&
-                        extractMatrixId(curMatrix.matrixId) > origMatrixId) {
+                    extractMatrixId(curMatrix.matrixId) > origMatrixId) {
                     if (curMatrix.linkedMatricesIds.length > 0) {
                         return true
                     }
@@ -473,7 +497,7 @@ function bindActionListeners() {
 
                     function checkOverflow(element) {
                         const curOverflow = element.style.overflow;
-                        if ( !curOverflow || curOverflow === "visible" ) {
+                        if (!curOverflow || curOverflow === "visible") {
                             element.style.overflow = "hidden";
                         }
                         element.style.overflow = curOverflow;
