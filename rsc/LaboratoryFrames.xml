@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <LaboratoryFrames>
 	<FrameIndex Scheme="1" FrameID="1">
-		<LaboratoryFrame Name="Vega" TimeLimit="30" TimeScale="Minute" ShowTime="Yes" Language="ru">
+		<LaboratoryFrame Name="Задание 1" TimeLimit="60" TimeScale="Minute" ShowTime="Yes" Language="ru">
 			<ToolIndex Scheme="1" ToolID="1"/>
 			<Data contentType="xhtml">Найдите значение сигнала на каждом слое сети и посчитайте MSE на выходном слое</Data>
-			<LaboratoryTestsGroups LaboratoryTestsGroupsID="1" LimitOnCollection="1800" LimitOnTest="1800" TimeScale="Second" URL="rlcp://user:user@127.0.0.1:3000" Weight="1" >
+			<LaboratoryTestsGroups LaboratoryTestsGroupsID="1" LimitOnCollection="1800" LimitOnTest="1800" TimeScale="Second" URL="rlcp://dlc:dlc@127.0.0.1:13339" Weight="1" >
 				<LaboratoryTestsGroup LaboratoryTestsGroupID="1" Number="1" LimitOnTest="1800" TimeScale="Second" Weight="1" >
 					<LaboratoryTest TestID="1" LimitOnTest="1800" TimeScale="Second" Weight="1" >
 						<LaboratoryTestInput>
@@ -19,17 +19,17 @@
 			<Generator>
 				<ByDefault>
 					<Text>
-						<!-- dummy text -->
+						<!-- Информация для отображения пользователю, если север ВЛ недоступен -->
 					</Text>
 					<Code>
-						<!-- dummy code -->
+						<!-- Информация для лабораторной установки, если север ВЛ недоступен -->
 					</Code>
 					<Instructions>
-						<!-- dummy instructions -->
+						<!-- Инструкции по проверки решения, если сервер ВЛ недоступен -->
 					</Instructions>
 				</ByDefault>
 				<Algorithm>
-     					<!-- dummy algorithm -->
+					<!-- Инструкции для генерирования -->
 				</Algorithm>
 			</Generator>
 		</LaboratoryFrame>
