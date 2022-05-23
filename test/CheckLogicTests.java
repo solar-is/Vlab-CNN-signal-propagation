@@ -101,7 +101,7 @@ public class CheckLogicTests extends ServerTestBase {
                 generatingResult);
 
         assertEquals(0.15, result.getResult().doubleValue(), 0.0000001);
-        assertEquals("Матрица id-2, ячейка (3,3): ожидаемое значение - 0.0, актуальное значение - 1.2323", result.getComment());
+        assertEquals("Матрица 2, ячейка (3,3): ожидаемое значение - 0.0, актуальное значение - 1.2323", result.getComment());
     }
 
     @Test
@@ -113,6 +113,6 @@ public class CheckLogicTests extends ServerTestBase {
                 generatingResult);
 
         assertEquals(0.15, result.getResult().doubleValue(), 0.0000001);
-        assertEquals("Матрица id-2 должна иметь размер 6x6, но имеет размер 5x6", result.getComment());
+        assertEquals("Матрица 2 должна иметь размер 6x6, но имеет размер 5x6", result.getComment());
     }
 }
