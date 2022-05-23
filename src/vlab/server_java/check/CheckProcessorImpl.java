@@ -10,7 +10,6 @@ import vlab.server_java.model.solutionchecking.MatrixAnswer;
 import vlab.server_java.model.solutionchecking.Solution;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 
 /**
  * Simple CheckProcessor implementation. Supposed to be changed as needed to provide
@@ -24,7 +23,7 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
 
     @Override
     public CheckingSingleConditionResult checkSingleCondition(ConditionForChecking condition, String instructions, GeneratingResult generatingResult) {
-        System.out.println("instructions in checkProcessor" + instructions);
+        System.out.println("instructions in checkProcessor: " + instructions);
 
         double points = 0.0;
         StringBuilder commentBuilder = new StringBuilder();
@@ -33,6 +32,7 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
             Variant generatedVariant = JacksonHelper.fromJson(generatingResult.getCode(), Variant.class);
             Solution studentSolution = JacksonHelper.fromJson(instructions, Solution.class);
             Solution ourSolution = new Solution(generatedVariant);
+            System.out.println("our solution: " + ourSolution);
 
             //compare ourSolution and studentSolution
             int ourSolutionMatricesSize = ourSolution.matrices.size();
@@ -41,13 +41,9 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
             boolean shouldContinue = true;
             for (int k = 1; k < ourSolutionMatricesSize; k++) { //skip first matrix
                 MatrixAnswer ourMatrix = ourSolution.matrices.get(k);
-                Optional<MatrixAnswer> studentMatrixOptional = studentSolution.matrices
-                        .stream()
-                        .filter(studentMatrix -> studentMatrix.matrixId.equals(ourMatrix.matrixId))
-                        .findFirst();
 
-                if (studentMatrixOptional.isPresent()) {
-                    MatrixAnswer studentMatrix = studentMatrixOptional.get();
+                if (studentSolutionMatricesSize > k) {
+                    MatrixAnswer studentMatrix = studentSolution.matrices.get(k);
                     double[][] studentMatrixValue = studentMatrix.matrixValue;
                     double[][] ourMatrixValue = ourMatrix.matrixValue;
 
@@ -75,13 +71,14 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
                         points += VALID_MATRIX_POINTS[k - 1];
                     }
                 } else {
-                    //different amount of matrices or different ids
+                    //different amount of matrices
                     commentBuilder.append("Ожидаемое количество матриц в ответе - ").append(ourSolutionMatricesSize)
                             .append(", актульное количество - ").append(studentSolutionMatricesSize);
                     break;
                 }
             }
 
+            //check mse
             if (ourSolutionMatricesSize == studentSolutionMatricesSize &&
                     points == (MAX_POINTS - MSE_VALID_POINTS)) {
                 double mseDiff = Math.abs(studentSolution.mse - ourSolution.mse);

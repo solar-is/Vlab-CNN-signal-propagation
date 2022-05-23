@@ -34,41 +34,10 @@ public class Solution {
     }
 
     private void calculateMatrices(@Nonnull List<MatrixNetNode> calculatedNodes) {
-        //converting to MatrixAnswer's
-        Map<MatrixNetNode, String> idByMatrices = new HashMap<>();
-        Map<String, MatrixAnswer> matricesById = new HashMap<>();
-        assignIdsAndFillMapsWithMatrices(calculatedNodes, idByMatrices, matricesById);
-
-        idByMatrices.forEach((node, id) -> {
-            MatrixAnswer matrixAnswer = matricesById.get(id);
-            List<MatrixNetNode> nextNodes = node.getNextNodes();
-            if (nextNodes != null) {
-                //fill linkedMatricesIds with all needed nodes
-                matrixAnswer.linkedMatricesIds.addAll(
-                        nextNodes
-                                .stream()
-                                .map(idByMatrices::get)
-                                .collect(Collectors.toList())
-                );
-            }
-        });
-
-        this.matrices = matricesById.values().stream().sorted((o1, o2) -> {
-            //compare by id, ascending
-            String matrixId1 = o1.matrixId;
-            String matrixId2 = o2.matrixId;
-            Integer integer1 = Integer.valueOf(matrixId1.substring(matrixId1.indexOf('-') + 1));
-            Integer integer2 = Integer.valueOf(matrixId2.substring(matrixId2.indexOf('-') + 1));
-            return integer1.compareTo(integer2);
-        }).collect(Collectors.toList());
-    }
-
-    private void assignIdsAndFillMapsWithMatrices(@Nonnull List<MatrixNetNode> calculatedNodes,
-                                                  @Nonnull Map<MatrixNetNode, String> idByMatrices,
-                                                  @Nonnull Map<String, MatrixAnswer> matricesById) {
         int matrixIdCounter = 0;
+        List<MatrixAnswer> result = new ArrayList<>();
         for (MatrixNetNode nodeToConvert : calculatedNodes) {
-            //generate id
+            //generate some id
             String id = "id-" + matrixIdCounter++;
             MatrixAnswer matrixAnswer = new MatrixAnswer(
                     id,
@@ -76,11 +45,9 @@ public class Solution {
                     nodeToConvert.getPayload().getMatrix(),
                     new ArrayList<>()
             );
-
-            //fill map
-            idByMatrices.put(nodeToConvert, id);
-            matricesById.put(id, matrixAnswer);
+            result.add(matrixAnswer);
         }
+        this.matrices = result;
     }
 
     private void calculateMseValue(@Nonnull List<MatrixNetNode> calculatedNodes) {
