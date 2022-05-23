@@ -50,7 +50,7 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
                     int h = ourMatrixValue.length;
                     int w = ourMatrixValue[0].length;
                     if (studentMatrixValue.length != h || studentMatrixValue[0].length != w) {
-                        commentBuilder.append("Матрица ").append(ourMatrix.matrixId).append(" должна иметь размер ")
+                        commentBuilder.append("Матрица ").append(studentMatrix.matrixId.substring(3)).append(" должна иметь размер ")
                                 .append(h).append("x").append(w).append(", но имеет размер ").append(studentMatrixValue.length).append("x").append(studentMatrixValue[0].length);
                         break;
                     } else {
@@ -58,7 +58,7 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
                             for (int j = 0; j < w; j++) {
                                 double diff = Math.abs(studentMatrixValue[i][j] - ourMatrixValue[i][j]);
                                 if (Double.compare(diff, COMPARISON_EPS) > 0) {
-                                    commentBuilder.append("Матрица ").append(ourMatrix.matrixId).append(", ячейка (").append(i + 1).append(",")
+                                    commentBuilder.append("Матрица ").append(studentMatrix.matrixId.substring(3)).append(", ячейка (").append(i + 1).append(",")
                                             .append(j + 1).append("): ожидаемое значение - ").append(ourMatrixValue[i][j]).append(", актуальное значение - ").append(studentMatrixValue[i][j]);
                                     shouldContinue = false;
                                     break;
