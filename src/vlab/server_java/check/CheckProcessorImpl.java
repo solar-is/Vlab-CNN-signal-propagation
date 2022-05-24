@@ -19,7 +19,6 @@ import java.math.RoundingMode;
 public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<String> {
     private static final double MAX_POINTS = 100.0;
     private static final double[] VALID_MATRIX_POINTS = {15.0, 15.0, 9.0, 9.0, 6.0, 6.0, 6.0, 6.0, 3.0, 3.0, 3.0, 3.0};
-    private static final double MSE_VALID_POINTS = 16.0;
     private static final double COMPARISON_EPS = 0.01;
 
     @Override
@@ -99,7 +98,7 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
                 if (Double.compare(mseDiff, COMPARISON_EPS) > 0) {
                     commentBuilder.append("MSE=").append(studentSolution.mse).append(" отличается от правильного (").append(ourSolution.mse).append(") больше чем на ").append(COMPARISON_EPS);
                 } else {
-                    points = MAX_POINTS; //points += MSE_VALID_POINTS
+                    points = MAX_POINTS;
                 }
             }
         } catch (Exception e) {
