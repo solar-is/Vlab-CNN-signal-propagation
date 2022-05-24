@@ -24,6 +24,8 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
     @Override
     public CheckingSingleConditionResult checkSingleCondition(ConditionForChecking condition, String instructions, GeneratingResult generatingResult) {
         System.out.println("instructions in checkProcessor: " + instructions);
+        instructions = instructions.replaceAll("&#0045;", "-");
+        System.out.println("instructions in checkProcessor after dash code replacement: " + instructions);
 
         double points = 0.0;
         StringBuilder commentBuilder = new StringBuilder();
@@ -79,8 +81,8 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
             }
 
             //check mse
-            if (ourSolutionMatricesSize == studentSolutionMatricesSize &&
-                    points == (MAX_POINTS - MSE_VALID_POINTS)) {
+            if (commentBuilder.length() == 0 &&
+                    Double.compare(points, MAX_POINTS - MSE_VALID_POINTS) == 0) {
                 double mseDiff = Math.abs(studentSolution.mse - ourSolution.mse);
                 if (Double.compare(mseDiff, COMPARISON_EPS) > 0) {
                     commentBuilder.append("MSE отличается от правильного (").append(ourSolution.mse).append(") больше чем на ").append(COMPARISON_EPS);
