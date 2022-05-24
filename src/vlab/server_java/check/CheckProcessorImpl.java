@@ -52,7 +52,8 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
                     int h = ourMatrixValue.length;
                     int w = ourMatrixValue[0].length;
                     if (studentMatrixValue.length != h || studentMatrixValue[0].length != w) {
-                        commentBuilder.append("Матрица ").append(studentMatrix.matrixId.substring(3)).append(" должна иметь размер ")
+                        commentBuilder.append("Матрица ").append(getNumericMatrixId(studentMatrix))
+                                .append(" должна иметь размер ")
                                 .append(h).append("x").append(w).append(", но имеет размер ").append(studentMatrixValue.length).append("x").append(studentMatrixValue[0].length);
                         break;
                     } else {
@@ -60,7 +61,8 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
                             for (int j = 0; j < w; j++) {
                                 double diff = Math.abs(studentMatrixValue[i][j] - ourMatrixValue[i][j]);
                                 if (Double.compare(diff, COMPARISON_EPS) > 0) {
-                                    commentBuilder.append("Матрица ").append(studentMatrix.matrixId.substring(3)).append(", ячейка (").append(i + 1).append(",")
+                                    commentBuilder.append("Матрица ").append(getNumericMatrixId(studentMatrix))
+                                            .append(", ячейка (").append(i + 1).append(",")
                                             .append(j + 1).append("): ожидаемое значение - ").append(ourMatrixValue[i][j]).append(", актуальное значение - ").append(studentMatrixValue[i][j]);
                                     shouldContinue = false;
                                     break;
@@ -85,7 +87,7 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
                     Double.compare(points, MAX_POINTS - MSE_VALID_POINTS) == 0) {
                 double mseDiff = Math.abs(studentSolution.mse - ourSolution.mse);
                 if (Double.compare(mseDiff, COMPARISON_EPS) > 0) {
-                    commentBuilder.append("MSE отличается от правильного (").append(ourSolution.mse).append(") больше чем на ").append(COMPARISON_EPS);
+                    commentBuilder.append("MSE=").append(studentSolution.mse).append(" отличается от правильного (").append(ourSolution.mse).append(") больше чем на ").append(COMPARISON_EPS);
                 } else {
                     points = MAX_POINTS; //points += MSE_VALID_POINTS
                 }
@@ -98,6 +100,11 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
                 BigDecimal.valueOf(points / 100),
                 commentBuilder.toString()
         );
+    }
+
+    private String getNumericMatrixId(MatrixAnswer studentMatrix) {
+        //remove garbage from id
+        return studentMatrix.matrixId.replaceAll("id", "").replaceAll("-", "").replaceAll("&#0045;", "");
     }
 
     @Override

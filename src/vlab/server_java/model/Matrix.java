@@ -32,7 +32,7 @@ public class Matrix {
     public static double round(double value, int decimals) {
         if (decimals < 0) throw new IllegalArgumentException();
         BigDecimal bd = BigDecimal.valueOf(value);
-        bd = bd.setScale(decimals, RoundingMode.HALF_UP);
+        bd = bd.setScale(decimals, RoundingMode.HALF_DOWN);
         return bd.doubleValue();
     }
 

@@ -17,10 +17,8 @@ public class CNNGenerator {
             new Matrix(new double[][]{{0, 1}, {1, 0}}),
             new Matrix(new double[][]{{0, 1}, {-1, 0}}),
             new Matrix(new double[][]{{0, -1}, {1, 0}}),
-            new Matrix(new double[][]{{0, -1}, {-1, 0}}),
             new Matrix(new double[][]{{1, 0}, {0, 1}}),
-            new Matrix(new double[][]{{-1, 0}, {0, -1}}),
-            new Matrix(new double[][]{{1, -1}, {-1, 1}})
+            new Matrix(new double[][]{{1, 0}, {0, -1}})
     );
 
     private static final int DEFAULT_INPUT_MATRIX_SIZE = 7;

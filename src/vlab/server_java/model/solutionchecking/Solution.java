@@ -68,7 +68,7 @@ public class Solution {
 
         //rounded to 2 decimals
         this.mse = BigDecimal.valueOf(mseSum / outputNeuronsCount)
-                .setScale(2, RoundingMode.HALF_UP)
+                .setScale(2, RoundingMode.HALF_DOWN)
                 .doubleValue();
     }
 
@@ -132,7 +132,7 @@ public class Solution {
         for (int i = 0; i < result.length; i++) {
             for (int j = 0; j < result[i].length; j++) {
                 result[i][j] = BigDecimal.valueOf(calculateSubSamplingFor(matrix, i, j, subSamplingFunction))
-                        .setScale(2, RoundingMode.HALF_UP)
+                        .setScale(2, RoundingMode.HALF_DOWN)
                         .doubleValue();
             }
         }
@@ -190,7 +190,7 @@ public class Solution {
 
     private double roundAndApplyActivationFunctionFor(double convolutionResult, @Nonnull String activationFunction) {
         convolutionResult = BigDecimal.valueOf(convolutionResult)
-                .setScale(2, RoundingMode.HALF_UP)
+                .setScale(2, RoundingMode.HALF_DOWN)
                 .doubleValue();
 
         if ("Linear".equals(activationFunction)) {
