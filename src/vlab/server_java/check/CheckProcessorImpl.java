@@ -10,6 +10,7 @@ import vlab.server_java.model.solutionchecking.MatrixAnswer;
 import vlab.server_java.model.solutionchecking.Solution;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * Simple CheckProcessor implementation. Supposed to be changed as needed to provide
@@ -40,8 +41,8 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
             int ourSolutionMatricesSize = ourSolution.matrices.size();
             int studentSolutionMatricesSize = studentSolution.matrices.size();
 
-            boolean shouldContinue = true;
-            for (int k = 1; k < ourSolutionMatricesSize; k++) { //skip first matrix
+            boolean shouldContinueComparison = true;
+            for (int k = 1; k < ourSolutionMatricesSize && shouldContinueComparison; k++) { //skip first matrix
                 MatrixAnswer ourMatrix = ourSolution.matrices.get(k);
 
                 if (studentSolutionMatricesSize > k) {
@@ -49,42 +50,51 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
                     double[][] studentMatrixValue = studentMatrix.matrixValue;
                     double[][] ourMatrixValue = ourMatrix.matrixValue;
 
-                    int h = ourMatrixValue.length;
-                    int w = ourMatrixValue[0].length;
-                    if (studentMatrixValue.length != h || studentMatrixValue[0].length != w) {
+                    int ourMatrixDimension = ourMatrixValue.length;
+                    int studentMatrixHeight = studentMatrixValue.length;
+                    int studentMatrixWidth = studentMatrixValue[0].length;
+
+                    if (studentMatrixHeight != ourMatrixDimension || studentMatrixWidth != ourMatrixDimension) {
                         commentBuilder.append("Матрица ").append(getNumericMatrixId(studentMatrix))
                                 .append(" должна иметь размер ")
-                                .append(h).append("x").append(w).append(", но имеет размер ").append(studentMatrixValue.length).append("x").append(studentMatrixValue[0].length);
+                                .append(ourMatrixDimension).append("x").append(ourMatrixDimension).append(", но имеет размер ")
+                                .append(studentMatrixHeight).append("x").append(studentMatrixWidth);
                         break;
                     } else {
-                        for (int i = 0; i < h && shouldContinue; i++) {
-                            for (int j = 0; j < w; j++) {
+                        double oldPoints = points;
+                        double validMatrixPointsAmount = VALID_MATRIX_POINTS[k - 1];
+                        int matrixCellsCount = ourMatrixDimension * ourMatrixDimension;
+
+                        for (int i = 0; i < studentMatrixHeight && shouldContinueComparison; i++) {
+                            for (int j = 0; j < studentMatrixWidth; j++) {
                                 double diff = Math.abs(studentMatrixValue[i][j] - ourMatrixValue[i][j]);
                                 if (Double.compare(diff, COMPARISON_EPS) > 0) {
                                     commentBuilder.append("Матрица ").append(getNumericMatrixId(studentMatrix))
                                             .append(", ячейка (").append(i + 1).append(",")
                                             .append(j + 1).append("): ожидаемое значение - ").append(ourMatrixValue[i][j]).append(", актуальное значение - ").append(studentMatrixValue[i][j]);
-                                    shouldContinue = false;
+                                    shouldContinueComparison = false;
                                     break;
+                                } else {
+                                    points += (validMatrixPointsAmount / matrixCellsCount);
                                 }
                             }
                         }
-                        if (!shouldContinue) {
-                            break;
+
+                        if (shouldContinueComparison) {
+                            //to avoid problems with doubles precision, update points with only one addition
+                            points = oldPoints + validMatrixPointsAmount;
                         }
-                        points += VALID_MATRIX_POINTS[k - 1];
                     }
                 } else {
                     //different amount of matrices
                     commentBuilder.append("Ожидаемое количество матриц в ответе - ").append(ourSolutionMatricesSize)
                             .append(", актульное количество - ").append(studentSolutionMatricesSize);
-                    break;
+                    shouldContinueComparison = false;
                 }
             }
 
             //check mse
-            if (commentBuilder.length() == 0 &&
-                    Double.compare(points, MAX_POINTS - MSE_VALID_POINTS) == 0) {
+            if (commentBuilder.length() == 0) {
                 double mseDiff = Math.abs(studentSolution.mse - ourSolution.mse);
                 if (Double.compare(mseDiff, COMPARISON_EPS) > 0) {
                     commentBuilder.append("MSE=").append(studentSolution.mse).append(" отличается от правильного (").append(ourSolution.mse).append(") больше чем на ").append(COMPARISON_EPS);
@@ -97,7 +107,8 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
         }
 
         return new CheckingSingleConditionResult(
-                BigDecimal.valueOf(points / 100),
+                BigDecimal.valueOf(points / 100)
+                        .setScale(2, RoundingMode.HALF_DOWN),
                 commentBuilder.toString()
         );
     }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.List;
 
 public class MatrixAnswer {
@@ -21,5 +22,15 @@ public class MatrixAnswer {
         this.slideNumber = slideNumber;
         this.matrixValue = matrixValue;
         this.linkedMatricesIds = linkedMatricesIds;
+    }
+
+    @Override
+    public String toString() {
+        return "MatrixAnswer{" +
+                "matrixId='" + matrixId + '\'' +
+                ", slideNumber=" + slideNumber +
+                ", matrixValue=" + Arrays.toString(matrixValue) +
+                ", linkedMatricesIds=" + linkedMatricesIds +
+                '}';
     }
 }

@@ -64,7 +64,7 @@ public class Solution {
                     }
                 })
                 .sum();
-        long outputNeuronsCount = calculatedNodes.stream().filter(node -> node.getNextNodes() == null).count();
+        long outputNeuronsCount = calculatedNodes.stream().filter(node -> node.getNextNodes() == null).count(); //should be equal to 4 actually
 
         //rounded to 2 decimals
         this.mse = BigDecimal.valueOf(mseSum / outputNeuronsCount)
@@ -205,5 +205,13 @@ public class Solution {
     private enum LayerType {
         CONVOLUTION,
         SUBSAMPLING
+    }
+
+    @Override
+    public String toString() {
+        return "Solution{" +
+                "mse=" + mse +
+                ", matrices=" + matrices +
+                '}';
     }
 }

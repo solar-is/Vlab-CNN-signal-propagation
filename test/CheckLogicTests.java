@@ -112,7 +112,7 @@ public class CheckLogicTests extends ServerTestBase {
         CheckProcessor.CheckingSingleConditionResult result = checkProcessor.checkSingleCondition(null, studentSolution,
                 generatingResult);
 
-        assertEquals(0.15, result.getResult().doubleValue(), 0.0000001);
+        assertEquals(0.21, result.getResult().doubleValue(), 0.0000001);
         assertEquals("Матрица 2, ячейка (3,3): ожидаемое значение - 0.0, актуальное значение - 1.2323", result.getComment());
     }
 
