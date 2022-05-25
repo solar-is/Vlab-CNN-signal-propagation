@@ -2,7 +2,7 @@ import org.junit.Test;
 import rlcp.generate.GeneratingResult;
 import rlcp.server.processor.check.CheckProcessor;
 import vlab.server_java.JacksonHelper;
-import vlab.server_java.generate.Variant;
+import vlab.server_java.model.Variant;
 import vlab.server_java.model.Matrix;
 import vlab.server_java.model.MatrixNetNode;
 import vlab.server_java.model.solutionchecking.Solution;

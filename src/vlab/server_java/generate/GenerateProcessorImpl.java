@@ -4,6 +4,7 @@ import rlcp.generate.GeneratingResult;
 import rlcp.server.processor.generate.GenerateProcessor;
 import vlab.server_java.JacksonHelper;
 import vlab.server_java.model.CNNGenerator;
+import vlab.server_java.model.Variant;
 import vlab.server_java.model.solutionchecking.Solution;
 
 /**
