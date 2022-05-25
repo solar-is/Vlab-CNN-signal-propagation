@@ -5,7 +5,6 @@ import rlcp.generate.GeneratingResult;
 import rlcp.server.processor.check.PreCheckProcessor.PreCheckResult;
 import rlcp.server.processor.check.PreCheckResultAwareCheckProcessor;
 import vlab.server_java.JacksonHelper;
-import vlab.server_java.generate.Variant;
 import vlab.server_java.model.solutionchecking.MatrixAnswer;
 import vlab.server_java.model.solutionchecking.Solution;
 
@@ -31,9 +30,9 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
         StringBuilder commentBuilder = new StringBuilder();
 
         try {
-            Variant generatedVariant = JacksonHelper.fromJson(generatingResult.getCode(), Variant.class);
             Solution studentSolution = JacksonHelper.fromJson(instructions, Solution.class);
-            Solution ourSolution = new Solution(generatedVariant);
+            Solution ourSolution = JacksonHelper.fromJson(generatingResult.getInstructions(), Solution.class);
+            System.out.println("student solution: " + studentSolution);
             System.out.println("our solution: " + ourSolution);
 
             //compare ourSolution and studentSolution
