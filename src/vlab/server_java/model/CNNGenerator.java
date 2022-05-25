@@ -41,11 +41,13 @@ public class CNNGenerator {
     }
 
     public String generateActivationFunction() {
-        return POSSIBLE_ACTIVATION_FUNCTIONS.get(RANDOM.nextInt(POSSIBLE_ACTIVATION_FUNCTIONS.size()));
+        int idx = RANDOM.nextInt(POSSIBLE_ACTIVATION_FUNCTIONS.size());
+        return POSSIBLE_ACTIVATION_FUNCTIONS.get(idx);
     }
 
     public String generateSubSamplingFunction() {
-        return POSSIBLE_SUBSAMPLING_FUNCTIONS.get(RANDOM.nextInt(POSSIBLE_SUBSAMPLING_FUNCTIONS.size()));
+        int idx = RANDOM.nextInt(POSSIBLE_SUBSAMPLING_FUNCTIONS.size());
+        return POSSIBLE_SUBSAMPLING_FUNCTIONS.get(idx);
     }
 
     public MatrixNetNode generateInputNode() {
@@ -57,7 +59,8 @@ public class CNNGenerator {
         int kernelsCnt = POSSIBLE_CONVOLUTION_KERNELS.size();
         int idx = RANDOM.nextInt(kernelsCnt);
         for (int i = 0; i < convKernelsCnt; ++i) {
-            kernels.add(POSSIBLE_CONVOLUTION_KERNELS.get(idx >= kernelsCnt ? idx % kernelsCnt : idx));
+            Matrix kernel = POSSIBLE_CONVOLUTION_KERNELS.get(idx >= kernelsCnt ? idx % kernelsCnt : idx);
+            kernels.add(kernel);
             idx++;
         }
         return kernels;
