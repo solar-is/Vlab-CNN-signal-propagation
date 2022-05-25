@@ -10,10 +10,21 @@ import vlab.server_java.model.MatrixNetNode;
 import javax.annotation.Nonnull;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class Solution {
+    private static final DecimalFormat decimalFormat;
+
+    static {
+        DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(Locale.getDefault());
+        decimalFormatSymbols.setDecimalSeparator('.');
+        decimalFormat = new DecimalFormat("#.####", decimalFormatSymbols);
+        decimalFormat.setRoundingMode(RoundingMode.DOWN);
+    }
+
     public double mse;
     public List<MatrixAnswer> matrices;
 
@@ -67,7 +78,7 @@ public class Solution {
         long outputNeuronsCount = calculatedNodes.stream().filter(node -> node.getNextNodes() == null).count(); //should be equal to 4 actually
 
         //rounded to 2 decimals
-        this.mse = BigDecimal.valueOf(mseSum / outputNeuronsCount)
+        this.mse = new BigDecimal(decimalFormat.format(mseSum / outputNeuronsCount))
                 .setScale(2, RoundingMode.HALF_DOWN)
                 .doubleValue();
     }
@@ -131,7 +142,9 @@ public class Solution {
         double[][] result = new double[matrix.length / 2][matrix[0].length / 2];
         for (int i = 0; i < result.length; i++) {
             for (int j = 0; j < result[i].length; j++) {
-                result[i][j] = BigDecimal.valueOf(calculateSubSamplingFor(matrix, i, j, subSamplingFunction))
+                double subSampling = calculateSubSamplingFor(matrix, i, j, subSamplingFunction);
+                String formatted = decimalFormat.format(subSampling);
+                result[i][j] = new BigDecimal(formatted)
                         .setScale(2, RoundingMode.HALF_DOWN)
                         .doubleValue();
             }
@@ -189,7 +202,8 @@ public class Solution {
     }
 
     private double roundAndApplyActivationFunctionFor(double convolutionResult, @Nonnull String activationFunction) {
-        convolutionResult = BigDecimal.valueOf(convolutionResult)
+        String formatted = decimalFormat.format(convolutionResult);
+        convolutionResult = new BigDecimal(formatted)
                 .setScale(2, RoundingMode.HALF_DOWN)
                 .doubleValue();
 
