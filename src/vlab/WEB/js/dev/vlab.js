@@ -244,6 +244,8 @@ function getHTML() {
                     <span class="activation-func-value">${getActivationFunction(generatedVariant.activationFunction)}</span>
                     <span class="subsampling-func-caption">Функция подвыборки:</span>
                     <span class="subsampling-func-value">${generatedVariant.subSamplingFunction}</span>
+                    <span class="subsampling-dimension-caption">Выборка:</span>
+                    <span class="subsampling-dimension-value">2х2</span>
                     <button type="button" class="btn btn-info showReference" data-toggle="modal" data-target="#exampleModalScrollable">Справка</button>
                 </div>
                 <div class="header-end-line"></div>

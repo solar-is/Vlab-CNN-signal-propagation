@@ -148,6 +148,18 @@
     color: #17a2b8;
 }
 
+#jsLab .subsampling-dimension-caption {
+    margin-left: 35px;
+    font-size: 20px;
+    color: #17a2b8;
+}
+
+#jsLab .subsampling-dimension-value {
+    margin-left: 3px;
+    font-size: 20px;
+    color: #005465;
+}
+
 #jsLab .activation-func-value {
     margin-left: 3px;
     font-size: 20px;
