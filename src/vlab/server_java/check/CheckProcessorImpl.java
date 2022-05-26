@@ -58,10 +58,9 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
                     int studentMatrixWidth = studentMatrixValue[0].length;
 
                     if (studentMatrixHeight != ourMatrixDimension || studentMatrixWidth != ourMatrixDimension) {
-                        commentBuilder.append("Матрица ").append(getNumericMatrixId(studentMatrix))
-                                .append(" должна иметь размер ")
-                                .append(ourMatrixDimension).append("x").append(ourMatrixDimension).append(", но имеет размер ")
-                                .append(studentMatrixHeight).append("x").append(studentMatrixWidth);
+                        commentBuilder.append("Ошибка в размере матрицы ").append(getNumericMatrixId(studentMatrix))
+                                .append(": sys=").append(ourMatrixDimension).append("x").append(ourMatrixDimension)
+                                .append(" user=").append(studentMatrixHeight).append("x").append(studentMatrixWidth);
                         break;
                     } else {
                         double oldPoints = points;
@@ -72,9 +71,15 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
                             for (int j = 0; j < studentMatrixWidth; j++) {
                                 double diff = Math.abs(studentMatrixValue[i][j] - ourMatrixValue[i][j]);
                                 if (Double.compare(diff, COMPARISON_EPS) > 0) {
-                                    commentBuilder.append("Матрица ").append(getNumericMatrixId(studentMatrix))
-                                            .append(", ячейка (").append(i + 1).append(",")
-                                            .append(j + 1).append("): ожидаемое значение - ").append(ourMatrixValue[i][j]).append(", актуальное значение - ").append(studentMatrixValue[i][j]);
+                                    if (studentMatrix.slideNumber % 2 == 0) {
+                                        commentBuilder.append("Выборка");
+                                    } else {
+                                        commentBuilder.append("Свертка");
+
+                                    }
+                                    commentBuilder.append(" в матрице ").append(getNumericMatrixId(studentMatrix))
+                                            .append(", элемент (").append(i + 1).append(",")
+                                            .append(j + 1).append("): sys=").append(ourMatrixValue[i][j]).append(" user=").append(studentMatrixValue[i][j]);
                                     shouldContinueComparison = false;
                                     break;
                                 } else {
@@ -90,8 +95,8 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
                     }
                 } else {
                     //different amount of matrices
-                    commentBuilder.append("Ожидаемое количество матриц в ответе - ").append(ourSolutionMatricesSize)
-                            .append(", актульное количество - ").append(studentSolutionMatricesSize);
+                    commentBuilder.append("Ошибка в количестве матриц:").append(" sys=").append(ourSolutionMatricesSize)
+                            .append(" user=").append(studentSolutionMatricesSize);
                     shouldContinueComparison = false;
                 }
             }
@@ -100,7 +105,8 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
             if (commentBuilder.length() == 0) {
                 double mseDiff = Math.abs(studentSolution.mse - ourSolution.mse);
                 if (Double.compare(mseDiff, COMPARISON_EPS) > 0) {
-                    commentBuilder.append("MSE=").append(studentSolution.mse).append(" отличается от правильного (").append(ourSolution.mse).append(") больше чем на ").append(COMPARISON_EPS);
+                    commentBuilder.append("Ошибка в MSE: ").append("sys=").append(ourSolution.mse)
+                            .append(" user=").append(studentSolution.mse);
                 } else {
                     points = MAX_POINTS;
                 }

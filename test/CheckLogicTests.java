@@ -2,9 +2,9 @@ import org.junit.Test;
 import rlcp.generate.GeneratingResult;
 import rlcp.server.processor.check.CheckProcessor;
 import vlab.server_java.JacksonHelper;
-import vlab.server_java.model.Variant;
 import vlab.server_java.model.Matrix;
 import vlab.server_java.model.MatrixNetNode;
+import vlab.server_java.model.Variant;
 import vlab.server_java.model.solutionchecking.Solution;
 
 import java.util.Arrays;
@@ -91,8 +91,8 @@ public class CheckLogicTests extends ServerTestBase {
         CheckProcessor.CheckingSingleConditionResult result = checkProcessor.checkSingleCondition(null, studentSolution,
                 generatingResult);
 
-        assertEquals("MSE=0.22 отличается от правильного (0.24) больше чем на 0.01", result.getComment());
-        assertEquals(0.84, result.getResult().doubleValue(), 0.0000001);
+        assertEquals(0.8, result.getResult().doubleValue(), 0.0000001);
+        assertEquals("Ошибка в MSE: sys=0.24 user=0.22", result.getComment());
     }
 
     @Test
@@ -103,8 +103,8 @@ public class CheckLogicTests extends ServerTestBase {
         CheckProcessor.CheckingSingleConditionResult result = checkProcessor.checkSingleCondition(null, studentSolution,
                 generatingResult);
 
-        assertEquals(0.15, result.getResult().doubleValue(), 0.0000001);
-        assertEquals("Ожидаемое количество матриц в ответе - 13, актульное количество - 2", result.getComment());
+        assertEquals(0.2, result.getResult().doubleValue(), 0.0000001);
+        assertEquals("Ошибка в количестве матриц: sys=13 user=2", result.getComment());
     }
 
     @Test
@@ -114,8 +114,8 @@ public class CheckLogicTests extends ServerTestBase {
         CheckProcessor.CheckingSingleConditionResult result = checkProcessor.checkSingleCondition(null, studentSolution,
                 generatingResult);
 
-        assertEquals(0.21, result.getResult().doubleValue(), 0.0000001);
-        assertEquals("Матрица 2, ячейка (3,3): ожидаемое значение - 0.0, актуальное значение - 1.2323", result.getComment());
+        assertEquals(0.28, result.getResult().doubleValue(), 0.0000001);
+        assertEquals("Свертка в матрице 2, элемент (3,3): sys=0.0 user=1.2323", result.getComment());
     }
 
     @Test
@@ -125,7 +125,7 @@ public class CheckLogicTests extends ServerTestBase {
         CheckProcessor.CheckingSingleConditionResult result = checkProcessor.checkSingleCondition(null, studentSolution,
                 generatingResult);
 
-        assertEquals(0.15, result.getResult().doubleValue(), 0.0000001);
-        assertEquals("Матрица 2 должна иметь размер 6x6, но имеет размер 5x6", result.getComment());
+        assertEquals(0.2, result.getResult().doubleValue(), 0.0000001);
+        assertEquals("Ошибка в размере матрицы 2: sys=6x6 user=5x6", result.getComment());
     }
 }
