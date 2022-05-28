@@ -8,8 +8,11 @@ import vlab.server_java.JacksonHelper;
 import vlab.server_java.model.solutionchecking.MatrixAnswer;
 import vlab.server_java.model.solutionchecking.Solution;
 
+import javax.annotation.Nonnull;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Simple CheckProcessor implementation. Supposed to be changed as needed to provide
@@ -17,13 +20,10 @@ import java.math.RoundingMode;
  */
 public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<String> {
     private static final double MAX_POINTS = 100.0;
-    private static final double[] VALID_MATRIX_POINTS = {
-            20.0, 20.0,
-            10.0, 10.0,
-            2.5, 2.5, 2.5, 2.5,
-            2.5, 2.5, 2.5, 2.5
-    };
-    private static final double COMPARISON_EPS = 0.01;
+    private static final double[] VALID_MATRIX_POINTS = {40.0, 20.0, 10.0, 10.0};
+    private static final int[] VALID_MATRIX_CELLS_COUNTS = {72, 18, 16, 4};
+
+    private static final double COMPARISON_EPS = 0.009;
 
     @Override
     public CheckingSingleConditionResult checkSingleCondition(ConditionForChecking condition, String instructions, GeneratingResult generatingResult) {
@@ -40,68 +40,66 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
             System.out.println("student solution: " + studentSolution);
             System.out.println("our solution: " + ourSolution);
 
-            //compare ourSolution and studentSolution
-            int ourSolutionMatricesSize = ourSolution.matrices.size();
-            int studentSolutionMatricesSize = studentSolution.matrices.size();
-
-            boolean shouldContinueComparison = true;
-            for (int k = 1; k < ourSolutionMatricesSize && shouldContinueComparison; k++) { //skip first matrix
-                MatrixAnswer ourMatrix = ourSolution.matrices.get(k);
-
-                if (studentSolutionMatricesSize > k) {
-                    MatrixAnswer studentMatrix = studentSolution.matrices.get(k);
-                    double[][] studentMatrixValue = studentMatrix.matrixValue;
-                    double[][] ourMatrixValue = ourMatrix.matrixValue;
-
-                    int ourMatrixDimension = ourMatrixValue.length;
-                    int studentMatrixHeight = studentMatrixValue.length;
-                    int studentMatrixWidth = studentMatrixValue[0].length;
-
-                    if (studentMatrixHeight != ourMatrixDimension || studentMatrixWidth != ourMatrixDimension) {
-                        commentBuilder.append("Ошибка в размере матрицы ").append(getNumericMatrixId(studentMatrix))
-                                .append(": sys=").append(ourMatrixDimension).append("x").append(ourMatrixDimension)
-                                .append(" user=").append(studentMatrixHeight).append("x").append(studentMatrixWidth);
-                        break;
-                    } else {
-                        double oldPoints = points;
-                        double validMatrixPointsAmount = VALID_MATRIX_POINTS[k - 1];
-                        int matrixCellsCount = ourMatrixDimension * ourMatrixDimension;
-
-                        for (int i = 0; i < studentMatrixHeight && shouldContinueComparison; i++) {
-                            for (int j = 0; j < studentMatrixWidth; j++) {
-                                double diff = Math.abs(studentMatrixValue[i][j] - ourMatrixValue[i][j]);
-                                if (Double.compare(diff, COMPARISON_EPS) > 0) {
-                                    if (studentMatrix.slideNumber % 2 == 0) {
-                                        commentBuilder.append("Выборка");
-                                    } else {
-                                        commentBuilder.append("Свертка");
-
-                                    }
-                                    commentBuilder.append(" в матрице ").append(getNumericMatrixId(studentMatrix))
-                                            .append(", элемент (").append(i + 1).append(",")
-                                            .append(j + 1).append("): sys=").append(ourMatrixValue[i][j]).append(" user=").append(studentMatrixValue[i][j]);
-                                    shouldContinueComparison = false;
-                                    break;
-                                } else {
-                                    points += (validMatrixPointsAmount / matrixCellsCount);
-                                }
-                            }
-                        }
-
-                        if (shouldContinueComparison) {
-                            //to avoid problems with doubles precision, update points with only one addition
-                            points = oldPoints + validMatrixPointsAmount;
-                        }
-                    }
-                } else {
-                    //different amount of matrices
-                    commentBuilder.append("Ошибка в количестве матриц:").append(" sys=").append(ourSolutionMatricesSize)
-                            .append(" user=").append(studentSolutionMatricesSize);
-                    shouldContinueComparison = false;
-                }
+            int idx = 0;
+            for (MatrixAnswer matrix : studentSolution.matrices) {
+                matrix.matrixId = String.valueOf(idx++);
             }
 
-            //check mse
+            int currentLayerNumber = 1;
+            boolean shouldContinueComparison = true;
+            while (currentLayerNumber <= 4 && shouldContinueComparison) {
+                List<MatrixAnswer> studentMatrices = getMatricesFromLayer(studentSolution, currentLayerNumber);
+                List<MatrixAnswer> ourMatrices = getMatricesFromLayer(ourSolution, currentLayerNumber);
+
+                if (studentMatrices.size() != ourMatrices.size()) {
+                    commentBuilder.append("Ошибка в количестве матриц на слое ").append(currentLayerNumber).append(":").append(" sys=").append(ourMatrices.size())
+                            .append(" user=").append(studentMatrices.size());
+                    break;
+                }
+                if (!validDimensions(studentMatrices, ourMatrices, commentBuilder)) {
+                    break;
+                }
+
+                int validCellsCnt = 0;
+                for (int k = 0; k < ourMatrices.size(); k++) {
+                    MatrixAnswer studentMatrixAnswer = studentMatrices.get(k);
+                    double[][] studentMatrix = studentMatrixAnswer.matrixValue;
+                    double[][] ourMatrix = ourMatrices.get(k).matrixValue;
+
+                    for (int i = 0; i < studentMatrix.length; i++) {
+                        for (int j = 0; j < studentMatrix[0].length; j++) {
+                            double ourMatrixCellValue = ourMatrix[i][j];
+                            double studentMatrixCellValue = studentMatrix[i][j];
+
+                            double diff = Math.abs(studentMatrixCellValue - ourMatrixCellValue);
+                            if (Double.compare(diff, COMPARISON_EPS) > 0) {
+                                if (studentMatrixAnswer.slideNumber % 2 == 0) {
+                                    commentBuilder.append("Выборка");
+                                } else {
+                                    commentBuilder.append("Свертка");
+                                }
+                                commentBuilder.append(" в матрице ").append(getNumericMatrixId(studentMatrixAnswer))
+                                        .append(", элемент (").append(i + 1).append(",")
+                                        .append(j + 1).append("): sys=").append(ourMatrixCellValue).append(" user=").append(studentMatrixCellValue)
+                                        .append("; ");
+                                shouldContinueComparison = false;
+                            } else {
+                                validCellsCnt++;
+                            }
+                        }
+                    }
+                }
+
+                int totalCellsCnt = VALID_MATRIX_CELLS_COUNTS[currentLayerNumber - 1];
+                if (validCellsCnt == totalCellsCnt) {
+                    points += VALID_MATRIX_POINTS[currentLayerNumber - 1];
+                } else {
+                    points += VALID_MATRIX_POINTS[currentLayerNumber - 1] * (validCellsCnt * 1.0 / totalCellsCnt);
+                }
+                currentLayerNumber++;
+            }
+
+            //check mse if there were no errors found earlier
             if (commentBuilder.length() == 0) {
                 double mseDiff = Math.abs(studentSolution.mse - ourSolution.mse);
                 if (Double.compare(mseDiff, COMPARISON_EPS) > 0) {
@@ -122,7 +120,36 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
         );
     }
 
-    private String getNumericMatrixId(MatrixAnswer studentMatrix) {
+    private boolean validDimensions(@Nonnull List<MatrixAnswer> studentMatrices,
+                                    @Nonnull List<MatrixAnswer> ourMatrices,
+                                    @Nonnull StringBuilder commentBuilder) {
+        for (int i = 0; i < ourMatrices.size(); i++) {
+            MatrixAnswer studentMatrixAnswer = studentMatrices.get(i);
+            double[][] studentMatrix = studentMatrixAnswer.matrixValue;
+            double[][] ourMatrix = ourMatrices.get(i).matrixValue;
+
+            if (studentMatrix.length != ourMatrix.length ||
+                    studentMatrix[0].length != ourMatrix[0].length) {
+                commentBuilder.append("Ошибка в размере матрицы ").append(getNumericMatrixId(studentMatrixAnswer))
+                        .append(": sys=").append(ourMatrix.length).append("x").append(ourMatrix[0].length)
+                        .append(" user=").append(studentMatrix.length).append("x").append(studentMatrix[0].length);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Nonnull
+    private List<MatrixAnswer> getMatricesFromLayer(@Nonnull Solution solution,
+                                                    int currentLayerNumber) {
+        return solution.matrices
+                .stream()
+                .filter(m -> m.slideNumber == currentLayerNumber)
+                .collect(Collectors.toList());
+    }
+
+    @Nonnull
+    private String getNumericMatrixId(@Nonnull MatrixAnswer studentMatrix) {
         //remove garbage from id
         return studentMatrix.matrixId.replaceAll("id", "").replaceAll("-", "").replaceAll("&#0045;", "");
     }

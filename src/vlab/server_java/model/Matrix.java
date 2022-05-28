@@ -22,7 +22,7 @@ public class Matrix {
         for (int i = 0; i < size; ++i) {
             for (int j = 0; j < size; j++) {
                 double value = random.nextDouble(); //[0..1)
-                result[i][j] = round(value, 2);
+                result[i][j] = round(value, 1);
             }
         }
 
