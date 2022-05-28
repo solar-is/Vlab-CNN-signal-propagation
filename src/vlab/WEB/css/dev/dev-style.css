@@ -253,6 +253,7 @@
     float: right;
     font-size: 28px;
     font-weight: bold;
+    line-height: 0.7;
 }
 
 #jsLab .close-addMatrix-modal:hover,
