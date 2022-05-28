@@ -97,15 +97,21 @@ function makeRightMatricesEditable(rightSideMatrices) {
                     let dotIdx = current_text.indexOf('.')
                     let commaIdx = current_text.indexOf(',')
 
+                    let isNegative;
+                    if (val >= 0) {
+                        isNegative = 0
+                    } else {
+                        isNegative = 1
+                    }
                     if (
-                        ((dotIdx !== -1 || commaIdx !== -1) && val.toString().length > 5) ||
-                        ((dotIdx === -1 && commaIdx === -1) && val.toString().length > 4)
+                        ((dotIdx !== -1 || commaIdx !== -1) && val.toString().length > (4 + isNegative)) ||
+                        ((dotIdx === -1 && commaIdx === -1) && val.toString().length > (3 + isNegative))
                     ) {
                         td.removeAttribute('data-clicked')
                         td.removeAttribute('data-text')
                         td.innerHTML = orig_text
                         td.style.cssText = 'padding: 5px'
-                        alert("Некорректное значение, максимально возможное кол-во знаков - 4")
+                        alert("Некорректное значение, максимально возможное кол-во знаков - 3")
                         return;
                     }
 
@@ -328,6 +334,10 @@ function createEmptyMatrixWithSize(height, width) {
 function bindActionListeners() {
     //changing of MSE field value
     document.getElementById("MSE_value").addEventListener('change', () => {
+        if (document.getElementById("MSE_value").value.length > 6) {
+            document.getElementById("MSE_value").value = document.getElementById("MSE_value").value.slice(0, 6);
+        }
+
         updateState((state) => {
             if (isNaN(document.getElementById("MSE_value").value)) {
                 return {
