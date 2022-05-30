@@ -63,7 +63,7 @@ public class CheckLogicTests extends ServerTestBase {
 
         assertEquals("Свертка в матрице 2, элемент (1,4): sys=0.0 user=0.01; " +
                 "Свертка в матрице 2, элемент (2,2): sys=0.0 user=0.12; ", result.getComment());
-        assertEquals(0.39, result.getResult().doubleValue(), 0.0000001);
+        assertEquals(0.99, result.getResult().doubleValue(), 0.0000001);
     }
 
     @Test
@@ -126,7 +126,7 @@ public class CheckLogicTests extends ServerTestBase {
         CheckProcessor.CheckingSingleConditionResult result = checkProcessor.checkSingleCondition(null, studentSolution,
                 generatingResult);
 
-        assertEquals("Свертка в матрице 2, элемент (3,3): sys=0.0 user=1.2323; ", result.getComment());
+        assertEquals("Свертка в матрице 2, элемент (3,3): sys=0.0 user=1.2323; Ошибка в количестве матриц на слое 2: sys=2 user=0", result.getComment());
         assertEquals(0.39, result.getResult().doubleValue(), 0.0000001);
     }
 

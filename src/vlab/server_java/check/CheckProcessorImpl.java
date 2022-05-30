@@ -22,7 +22,7 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
     private static final double MAX_POINTS = 100.0;
     private static final double[] VALID_MATRIX_POINTS = {40.0, 20.0, 10.0, 10.0};
     private static final int[] VALID_MATRIX_CELLS_COUNTS = {72, 18, 16, 4};
-
+    private static final double MSE_VALID_POINTS = 20.0;
     private static final double COMPARISON_EPS = 0.009;
 
     @Override
@@ -46,17 +46,19 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
             }
 
             int currentLayerNumber = 1;
-            boolean shouldContinueComparison = true;
-            while (currentLayerNumber <= 4 && shouldContinueComparison) {
+            boolean validationFailed = false;
+            while (currentLayerNumber <= 4) {
                 List<MatrixAnswer> studentMatrices = getMatricesFromLayer(studentSolution, currentLayerNumber);
                 List<MatrixAnswer> ourMatrices = getMatricesFromLayer(ourSolution, currentLayerNumber);
 
                 if (studentMatrices.size() != ourMatrices.size()) {
                     commentBuilder.append("Ошибка в количестве матриц на слое ").append(currentLayerNumber).append(":").append(" sys=").append(ourMatrices.size())
                             .append(" user=").append(studentMatrices.size());
+                    validationFailed = true;
                     break;
                 }
                 if (!validDimensions(studentMatrices, ourMatrices, commentBuilder)) {
+                    validationFailed = true;
                     break;
                 }
 
@@ -82,7 +84,6 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
                                         .append(", элемент (").append(i + 1).append(",")
                                         .append(j + 1).append("): sys=").append(ourMatrixCellValue).append(" user=").append(studentMatrixCellValue)
                                         .append("; ");
-                                shouldContinueComparison = false;
                             } else {
                                 validCellsCnt++;
                             }
@@ -99,20 +100,21 @@ public class CheckProcessorImpl implements PreCheckResultAwareCheckProcessor<Str
                 currentLayerNumber++;
             }
 
-            //check mse if there were no errors found earlier
-            if (commentBuilder.length() == 0) {
+            //check mse if there were only calculation errors earlier
+            if (!validationFailed) {
                 double mseDiff = Math.abs(studentSolution.mse - ourSolution.mse);
                 if (Double.compare(mseDiff, COMPARISON_EPS) > 0) {
                     commentBuilder.append("Ошибка в MSE: ").append("sys=").append(ourSolution.mse)
                             .append(" user=").append(studentSolution.mse);
                 } else {
-                    points = MAX_POINTS;
+                    points += MSE_VALID_POINTS;
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+        points = Math.min(points, 100.);
         return new CheckingSingleConditionResult(
                 BigDecimal.valueOf(points / 100)
                         .setScale(2, RoundingMode.HALF_DOWN),
